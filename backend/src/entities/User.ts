@@ -1,7 +1,7 @@
 import { randomBytes } from "crypto";
-import { Field } from "type-graphql";
-import { AfterLoad, BaseEntity, BeforeInsert, BeforeUpdate, Column, Entity, JoinColumn, JoinTable, ManyToMany, ManyToOne, OneToMany, PrimaryGeneratedColumn } from "typeorm";
-import { decrypt_personalized_data, decrypt_personalized_key, encrypt_personalized_data, encrypt_personalized_key } from "../auth/auth";
+import { Field, ObjectType, } from "type-graphql";
+import { AfterInsert, AfterLoad, AfterUpdate, BaseEntity, BeforeInsert, BeforeRemove, BeforeUpdate, Column, Entity, JoinColumn, JoinTable, ManyToMany, ManyToOne, OneToMany, PrimaryGeneratedColumn } from "typeorm";
+import { decrypt_personalized_data, decrypt_personalized_key, encrypt_personalized_data, encrypt_personalized_key, hash_password } from "../auth/auth";
 import { generate_random_secret } from "../globals";
 import { Department } from "./Department";
 import { Permission } from "./Permission";
@@ -10,15 +10,31 @@ import { Ticket } from "./Ticket";
 import { TicketComment } from "./TicketComment";
 import { TicketHistory } from "./TicketHistory";
 import { TicketTemplate } from "./TicketTemplate";
+import * as helper from '../helpers/UserData';
+
 
 let key = "";
 
+
+@ObjectType()
 @Entity()
 export class User extends BaseEntity {
+    
+    constructor(username: string, displayName: string, mail: string, 
+        password: string, department_id: string, phoneNumber?: string) {
+        super();
+        this.username = username;
+        this.displayName = displayName;
+        this.mail = mail;
+        this.password = hash_password(password ?? "");
+        this.department_id = department_id;
+        this.phoneNumber = phoneNumber ?? null;
+    }
+    
     @Field()
     @PrimaryGeneratedColumn('uuid')
     id: string;
-
+    
     @Field()
     @Column({ type: 'varchar', length: 96, nullable: true, transformer: {  // original 32
         to: (value: string) => encrypt_personalized_data(value.toLowerCase(), key),
@@ -129,15 +145,26 @@ export class User extends BaseEntity {
         key = this.personalized_secret;
     }
 
+    @AfterInsert()
+    private async add_user() {
+        await helper.add(this);
+    }
+    @AfterUpdate()
+    private async update_user() {
+        await helper.update(this);
+    }
+
+    @BeforeRemove()
+    private async remove_user() {
+        await helper.remove(this.id);
+    }
+
     @AfterLoad()
     private decrypt_data() {
         key = this.personalized_secret;
         this.username = decrypt_personalized_data(this.username, key);
         this.displayName = decrypt_personalized_data(this.displayName, key);
         this.mail = decrypt_personalized_data(this.mail, key);
-        this.password = decrypt_personalized_data(this.password, key);
         this.phoneNumber = decrypt_personalized_data(this.phoneNumber, key);
-        this.two_factor_secret = decrypt_personalized_data(this.two_factor_secret, key);
-        this.jwt_secret = decrypt_personalized_data(this.jwt_secret, key);
     }
 }

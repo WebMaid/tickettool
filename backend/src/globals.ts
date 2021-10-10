@@ -1,9 +1,11 @@
 import { Service } from "./entities/Service";
 import { Ticket } from "./entities/Ticket";
+import { define as defineUsers } from './helpers/UserData';
 
 export const defineValues = async () => {
     ticket_count = await Ticket.count();
     service_count = await Service.count();
+    await defineUsers();
 }
 
 export let ticket_count = 0;
