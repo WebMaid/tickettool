@@ -1,12 +1,12 @@
-import "reflect-metadata";
+import * as cookieParser from 'cookie-parser';
 import 'dotenv/config';
 import * as express from "express";
+import "reflect-metadata";
 import { createConnection } from "typeorm";
-import * as cookieParser from 'cookie-parser';
-import { endpoints } from "./endpoints";
-import * as settings from "./settings";
 import { genApolloServer } from './apolloServer';
-
+import { endpoints } from "./endpoints";
+import * as globals from './globals';
+import * as settings from "./settings";
 
 (async () => {
     const app = express();
@@ -14,8 +14,8 @@ import { genApolloServer } from './apolloServer';
     app.use(cookieParser());
 
     app.post(
-        endpoints.refreshToken.route, 
-        async (req, res) => {await endpoints.refreshToken.endpoint(req, res)}
+        endpoints.refreshToken.route,
+        async (req, res) => { await endpoints.refreshToken.endpoint(req, res) }
     );
 
     await createConnection();
@@ -24,7 +24,8 @@ import { genApolloServer } from './apolloServer';
     await apolloServer.start();
     apolloServer.applyMiddleware({ app, cors: false });
 
-    app.listen(settings.port, () => {
+    app.listen(settings.port, async () => {
+        await globals.defineValues();
         console.log("STARTED SERVER SUCCESSFULLY!");
     })
 })()
