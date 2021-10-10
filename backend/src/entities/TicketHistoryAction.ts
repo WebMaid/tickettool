@@ -1,15 +1,16 @@
-import { Field, ID } from "type-graphql";
+import { Field, ID, ObjectType } from "type-graphql";
 import { BaseEntity, Column, Entity, JoinColumn, ManyToOne, OneToMany, PrimaryGeneratedColumn } from "typeorm";
 import { TicketHistoryActionEnum } from "../enums/TicketHistoryActionEnum";
 import { TicketHistory } from "./TicketHistory";
 
+@ObjectType()
 @Entity()
 export class TicketHistoryAction extends BaseEntity {
     @Field(() => ID)
     @PrimaryGeneratedColumn('uuid')
     id: string;
 
-    @Field(() => TicketHistoryActionEnum)
+    @Field(() => String)
     @Column({type: "enum", enum: TicketHistoryActionEnum, default: null, nullable: true})
     type: TicketHistoryActionEnum;
 

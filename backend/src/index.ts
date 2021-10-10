@@ -15,7 +15,12 @@ import * as settings from "./settings";
 
     app.post(
         endpoints.refreshToken.route,
-        async (req, res) => { await endpoints.refreshToken.endpoint(req, res) }
+        async (req, res) => { await endpoints.refreshToken.endpoint(req, res); }
+    );
+
+    app.get(
+        endpoints.generateKey.route,
+        async (req, res) => { await endpoints.generateKey.endpoint(req, res); }
     );
 
     await createConnection();

@@ -1,4 +1,4 @@
-import { Field, ID } from "type-graphql";
+import { Field, ID, ObjectType } from "type-graphql";
 import { AfterUpdate, BaseEntity, BeforeUpdate, Column, CreateDateColumn, Entity, JoinColumn, ManyToOne, OneToMany, PrimaryGeneratedColumn } from "typeorm";
 import { TicketHistoryActionEnum } from "../enums/TicketHistoryActionEnum";
 import { Department } from "./Department";
@@ -6,6 +6,7 @@ import { Ticket } from "./Ticket";
 import { TicketHistoryAction } from "./TicketHistoryAction";
 import { User } from "./User";
 
+@ObjectType()
 @Entity()
 export class TicketHistory extends BaseEntity {
     @Field(() => ID)

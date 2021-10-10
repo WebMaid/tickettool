@@ -1,10 +1,11 @@
-import { Field } from "type-graphql";
+import { Field, ObjectType } from "type-graphql";
 import { BaseEntity, Column, Entity, JoinTable, ManyToMany, OneToMany, PrimaryGeneratedColumn } from "typeorm";
 import { Role } from "./Role";
 import { Ticket } from "./Ticket";
 import { TicketHistory } from "./TicketHistory";
 import { User } from "./User";
 
+@ObjectType()
 @Entity()
 export class Department extends BaseEntity {
     @Field()

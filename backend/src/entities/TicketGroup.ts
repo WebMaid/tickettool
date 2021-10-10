@@ -1,7 +1,8 @@
-import { Field, ID } from "type-graphql";
+import { Field, ID, ObjectType } from "type-graphql";
 import { BaseEntity, Column, Entity, JoinColumn, OneToMany, OneToOne, PrimaryGeneratedColumn } from "typeorm";
 import { Ticket } from "./Ticket";
 
+@ObjectType()
 @Entity()
 export class TicketGroup extends BaseEntity {
     @Field(() => ID)

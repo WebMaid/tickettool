@@ -1,8 +1,9 @@
-import { Field } from "type-graphql";
+import { Field, ObjectType } from "type-graphql";
 import { BaseEntity, Column, Entity, JoinTable, ManyToMany, PrimaryGeneratedColumn } from "typeorm";
 import { Role } from "./Role";
 import { User } from "./User";
 
+@ObjectType()
 @Entity()
 export class Permission extends BaseEntity {
     @Field()

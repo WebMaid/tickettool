@@ -1,15 +1,16 @@
-import { Field, ID } from "type-graphql";
+import { Field, ID, ObjectType } from "type-graphql";
 import { BaseEntity, Column, Entity, OneToMany, PrimaryGeneratedColumn } from "typeorm";
 import { ServiceHistoryActionEnum } from "../enums/ServiceHistoryActionEnum";
 import { ServiceHistory } from "./ServiceHistory";
 
+@ObjectType()
 @Entity()
 export class ServiceHistoryAction extends BaseEntity {
     @Field(() => ID)
     @PrimaryGeneratedColumn('uuid')
     id: string;
 
-    @Field(() => ServiceHistoryActionEnum)
+    @Field(() => String)
     @Column({type: "enum", enum: ServiceHistoryActionEnum, default: null, nullable: true})
     type: ServiceHistoryActionEnum;
 

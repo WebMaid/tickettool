@@ -1,4 +1,4 @@
-import { Field, ID } from "type-graphql";
+import { Field, ID, ObjectType } from "type-graphql";
 import { AfterInsert, AfterUpdate, BaseEntity, BeforeInsert, BeforeUpdate, Column, CreateDateColumn, Entity, JoinColumn, ManyToOne, OneToMany, OneToOne, PrimaryGeneratedColumn, UpdateDateColumn } from "typeorm";
 import { TicketChangeParamEnum } from "../enums/TicketChangeParamEnum";
 import { TicketHistoryActionEnum } from "../enums/TicketHistoryActionEnum";
@@ -15,6 +15,7 @@ import { User } from "./User";
 
 let last_ticket = null;
 
+@ObjectType()
 @Entity()
 export class Ticket extends BaseEntity {
 
@@ -34,11 +35,11 @@ export class Ticket extends BaseEntity {
     @Column({type: "text", nullable: false})
     description: string;
 
-    @Field(() => TicketTypeEnum)
+    @Field(() => String)
     @Column({ type: "enum", enum: TicketTypeEnum, default: TicketTypeEnum.SERVICE_REQUEST, nullable: false })
     type: TicketTypeEnum;
 
-    @Field(() => TicketStatusEnum)
+    @Field(() => String)
     @Column({ type: "enum", enum: TicketStatusEnum, default: TicketStatusEnum.OPEN, nullable: false })
     status: TicketStatusEnum;
 

@@ -1,4 +1,4 @@
-import { Field, ID } from "type-graphql";
+import { Field, ID, ObjectType } from "type-graphql";
 import { BaseEntity, Column, Entity, JoinColumn, ManyToOne, OneToOne, PrimaryGeneratedColumn } from "typeorm";
 import { TicketStatusEnum } from "../enums/TicketStatusEnum";
 import { TicketTypeEnum } from "../enums/TicketTypeEnum";
@@ -7,6 +7,7 @@ import { Service } from "./Service";
 import { TicketGroup } from "./TicketGroup";
 import { User } from "./User";
 
+@ObjectType()
 @Entity()
 export class TicketTemplate extends BaseEntity {
     @Field(() => ID)
@@ -21,7 +22,7 @@ export class TicketTemplate extends BaseEntity {
     @Column({default: null})
     description: string;
 
-    @Field(() => TicketTypeEnum)
+    @Field(() => String)
     @Column({ type: "enum", enum: TicketTypeEnum, default: null })
     type: TicketTypeEnum;
 

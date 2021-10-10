@@ -24,7 +24,6 @@ class LoginResponse {
 
 @Resolver()
 export class UserResolver {
-// TODO: FIX ISSUE
 
     @Mutation(() => LoginResponse)
     async login(

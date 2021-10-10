@@ -1,9 +1,10 @@
-import { Field, ID } from "type-graphql";
+import { Field, ID, ObjectType } from "type-graphql";
 import { BaseEntity, BeforeInsert, Column, Entity, OneToMany, PrimaryGeneratedColumn } from "typeorm";
 import { add_service_count, service_count } from "../globals";
 import { ServiceHistory } from "./ServiceHistory";
 import { Ticket } from "./Ticket";
 
+@ObjectType()
 @Entity()
 export class Service extends BaseEntity {
     @Field(() => ID)
