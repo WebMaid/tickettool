@@ -1,8 +1,7 @@
 import { randomBytes } from "crypto";
 import { Field, ObjectType, } from "type-graphql";
 import { AfterInsert, AfterLoad, AfterUpdate, BaseEntity, BeforeInsert, BeforeRemove, BeforeUpdate, Column, Entity, JoinColumn, JoinTable, ManyToMany, ManyToOne, OneToMany, PrimaryGeneratedColumn } from "typeorm";
-import { decrypt_personalized_data, decrypt_personalized_key, encrypt_personalized_data, encrypt_personalized_key, hash_password } from "../auth/auth";
-import { generate_random_secret } from "../globals";
+import { decrypt_personalized_data, decrypt_personalized_key, encrypt_personalized_data, encrypt_personalized_key, hash_password, generate_random_secret } from "../auth/auth";
 import { Department } from "./Department";
 import { Permission } from "./Permission";
 import { Role } from "./Role";
@@ -159,6 +158,10 @@ export class User extends BaseEntity {
         await helper.remove(this.id);
     }
 
+    /*
+     * Is only executed on direct find*
+     * use await User.findOne(id) for relationships! 
+     */
     @AfterLoad()
     private decrypt_data() {
         key = this.personalized_secret;

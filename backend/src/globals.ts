@@ -1,3 +1,5 @@
+import { PubSub } from "graphql-subscriptions";
+import { SECRET_CHARS } from "./auth/auth";
 import { Service } from "./entities/Service";
 import { Ticket } from "./entities/Ticket";
 import { define as defineUsers } from './helpers/UserData';
@@ -23,15 +25,3 @@ export const set_service_count = (value: number) => {
 export const add_service_count = (value: number) => {
     service_count += value;
 }
-
-// TODO: Move to auth
-const SECRET_CHARS = "0123456789abcdefghijklmnopqrstuvwxyz!@#$%^&*()[]{}/\\+-_:.;,£àÀÉéÈè°ç\"<>`?'´=¬|¢~ABCDEFGHIJKLMNOPQRSTUVWXYZ";
-
-export const generate_random_secret = (lenght: number) => {
-    let password = "";
-    for (let i = 0; i <= lenght; i++) {
-        const randomNumber = Math.floor(Math.random() * SECRET_CHARS.length);
-        password += SECRET_CHARS.substring(randomNumber, randomNumber +1);
-    }
-    return password;
-} 

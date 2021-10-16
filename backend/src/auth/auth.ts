@@ -8,6 +8,9 @@ import { User } from '../entities/User';
 const PERSONALIZED_DATA_ALGORITHM = 'aes-256-ctr';
 const PASSWORD_HASH_ALGORITHM = "sha512"
 
+export const SECRET_CHARS = "0123456789abcdefghijklmnopqrstuvwxyz!@#$%^&*()[]{}/+-_:.;,£àÀÉéÈè°ç\"<>`?'´=¬|¢~ABCDEFGHIJKLMNOPQRSTUVWXYZ";
+
+
 @ObjectType()
 class AccessTokenData {
     @Field()
@@ -134,3 +137,12 @@ export const send_refresh_token = (res: Response, token: string): void => {
         httpOnly: true
     });
 }
+
+export const generate_random_secret = (lenght: number): string => {
+    let password = "";
+    for (let i = 0; i < lenght; i++) {
+        const randomNumber = Math.floor(Math.random() * SECRET_CHARS.length);
+        password += SECRET_CHARS.substring(randomNumber, randomNumber +1);
+    }
+    return password;
+} 
