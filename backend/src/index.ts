@@ -1,36 +1,66 @@
+
+import { ApolloServer } from 'apollo-server-express';
 import * as cookieParser from 'cookie-parser';
 import 'dotenv/config';
 import * as express from "express";
+import { execute, subscribe } from 'graphql';
+import * as http from 'http';
 import "reflect-metadata";
+import { SubscriptionServer } from 'subscriptions-transport-ws';
+import { buildSchema } from 'type-graphql';
 import { createConnection } from "typeorm";
-import { genApolloServer } from './apolloServer';
 import { endpoints } from "./endpoints";
 import * as globals from './globals';
+import { resolvers } from './resolvers';
 import * as settings from "./settings";
 
 (async () => {
-    const app = express();
-    app.use(settings.corsSettings());
-    app.use(cookieParser());
+  const app = express();
+  app.use(settings.corsSettings());
+  app.use(cookieParser());
 
-    app.post(
-        endpoints.refreshToken.route,
-        async (req, res) => { await endpoints.refreshToken.endpoint(req, res); }
-    );
+  app.post(
+    endpoints.refreshToken.route,
+    async (req, res) => { await endpoints.refreshToken.endpoint(req, res); }
+  );
 
-    app.get(
-        endpoints.generateKey.route,
-        async (req, res) => { await endpoints.generateKey.endpoint(req, res); }
-    );
+  app.get(
+    endpoints.generateKey.route,
+    async (req, res) => { await endpoints.generateKey.endpoint(req, res); }
+  );
 
-    await createConnection();
+  await createConnection();
+  const httpServer = http.createServer(app);
 
-    const apolloServer = await genApolloServer();
-    await apolloServer.start();
-    apolloServer.applyMiddleware({ app, cors: false });
+  const schema = await buildSchema({
+    resolvers: resolvers
+  });
 
-    app.listen(settings.port, async () => {
-        await globals.defineValues();
-        console.log("STARTED SERVER SUCCESSFULLY!");
-    })
+  const subscriptionServer = SubscriptionServer.create(
+    { schema, execute, subscribe },
+    { server: httpServer, path: '/graphql' }
+  );
+
+  const apolloServer = new ApolloServer({
+    schema,
+    context: ({ req, res }) => ({ req, res }),
+    plugins: [
+      {
+        async serverWillStart() {
+          return {
+            async drainServer() {
+              subscriptionServer.close();
+            },
+          };
+        },
+      },
+    ]
+  });;
+  await apolloServer.start();
+  apolloServer.applyMiddleware({ app, cors: false });
+
+  httpServer.listen(settings.port, async () => {
+    await globals.defineValues();
+    console.log("STARTED SERVER SUCCESSFULLY!");
+  })
 })()
