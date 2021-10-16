@@ -15,15 +15,15 @@ export class ServiceHistoryAction extends BaseEntity {
     type: ServiceHistoryActionEnum;
 
     @Field(() => String)
-    @Column()
+    @Column({nullable: true})
     value1: string;
 
     @Field(() => String)
-    @Column()
+    @Column({nullable: true})
     value2: string;
 
     @Field(() => String)
-    @Column()
+    @Column({nullable: true})
     value3: string;
 
     @Field(() => [ServiceHistory])

@@ -56,5 +56,4 @@ export class TicketHistory extends BaseEntity {
         const ins = await TicketHistory.insert(th);
         return await TicketHistory.findOne(ins.identifiers[0].id);
     }
-    // created_at
 }

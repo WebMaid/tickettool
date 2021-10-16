@@ -1,5 +1,5 @@
 import { Field, ID, ObjectType } from "type-graphql";
-import { BaseEntity, Column, Entity, JoinColumn, ManyToOne, PrimaryGeneratedColumn } from "typeorm";
+import { BaseEntity, Column, CreateDateColumn, Entity, JoinColumn, ManyToOne, PrimaryGeneratedColumn } from "typeorm";
 import { Service } from "./Service";
 import { ServiceHistoryAction } from "./ServiceHistoryAction";
 import { User } from "./User";
@@ -38,5 +38,7 @@ export class ServiceHistory extends BaseEntity {
     @JoinColumn({name: 'service_id'})
     service: Service;
 
-    // created_at
+    @Field(() => Date)
+    @CreateDateColumn()
+    created_at: Date;
 }

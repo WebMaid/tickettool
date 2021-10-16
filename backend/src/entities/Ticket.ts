@@ -19,6 +19,19 @@ let last_ticket = null;
 @Entity()
 export class Ticket extends BaseEntity {
 
+    constructor(short_description, description, type, responsible_user_id, responsible_department_id, issuer_id, issuer_department_id, service_id, group_id) {
+        super()
+        this.short_description = short_description;
+        this.description = description;
+        this.type = type;
+        this.responsible_user_id = responsible_user_id;
+        this.responsible_department_id = responsible_department_id;
+        this.issuer_id = issuer_id;
+        this.issuer_department_id = issuer_department_id;
+        this.service_id = service_id;
+        this.group_id = group_id;
+    }
+
     @Field(() => ID)
     @PrimaryGeneratedColumn('uuid')
     id: string;
@@ -47,7 +60,7 @@ export class Ticket extends BaseEntity {
     @Column({ type: "uuid", nullable: true })
     responsible_user_id: string;
 
-    @Field(() => User)
+    @Field(() => User, {nullable: true})
     @ManyToOne(type => User, u => u.ticket_responsibilities)
     @JoinColumn({ name: 'responsible_user_id' })
     responsible_user: User;
@@ -66,7 +79,7 @@ export class Ticket extends BaseEntity {
     previous_responsible_department_id: string;
 
     @Field(() => Department)
-    @ManyToOne(type => Department, u => u.previous_ticket_responsibilities)
+    @ManyToOne(type => Department, u => u.previous_ticket_responsibilities, {nullable: true})
     @JoinColumn({ name: 'previous_responsible_department_id' })
     previous_responsible_department: Department;
 
@@ -74,7 +87,7 @@ export class Ticket extends BaseEntity {
     @Column({ type: "uuid", nullable: true, update: false })
     issuer_id: string;
 
-    @Field(() => User)
+    @Field(() => User, {nullable: true})
     @ManyToOne(type => User, u => u.issued)
     @JoinColumn({ name: 'issuer_id' })
     issuer: User;
@@ -101,7 +114,7 @@ export class Ticket extends BaseEntity {
     @Column({ type: "uuid", nullable: true, default: null })
     group_id: string;
 
-    @Field(() => TicketGroup)
+    @Field(() => TicketGroup, {nullable: true})
     @ManyToOne(type => TicketGroup, tg => tg.members)
     @JoinColumn({ name: 'group_id' })
     group: TicketGroup;
@@ -110,7 +123,7 @@ export class Ticket extends BaseEntity {
     @Column({type: "uuid", default: null, nullable: true})
     owner_group_id: string;
 
-    @Field(() => TicketGroup)
+    @Field(() => TicketGroup, {nullable: true})
     @OneToOne(type => TicketGroup, tg => tg.owner)
     @JoinColumn({name: 'owner_group_id'})
     owner_group: TicketGroup;
@@ -127,7 +140,7 @@ export class Ticket extends BaseEntity {
     @UpdateDateColumn()
     updated_at: Date;
 
-    @Field(() => Date)
+    @Field(() => Date, {nullable: true})
     @Column({type: "timestamp", nullable: true, default: null})
     closed_at: Date;
 
@@ -151,6 +164,9 @@ export class Ticket extends BaseEntity {
     @BeforeUpdate()
     private async define_last_ticket() {
         last_ticket = await Ticket.findOne(this.id);
+        if (last_ticket.responsible_department_id != this.responsible_department_id) {
+            this.previous_responsible_department_id = last_ticket.responsible_department_id;
+        }
     }
 
     @AfterUpdate()
@@ -158,9 +174,6 @@ export class Ticket extends BaseEntity {
         const history = await TicketHistory.findOne({where: {ticket_id: this.id}, order: {created_at: 'DESC'}});
         
         const actions = await TicketHistoryAction.find({where: {history_id: history.id}});
-        if (last_ticket.responsible_department_id != this.responsible_department_id) {
-            this.previous_responsible_department_id = last_ticket.responsible_department_id;
-        }
         
         if (actions.length >= 1) {
             const action = actions[0];
@@ -185,25 +198,25 @@ export class Ticket extends BaseEntity {
             let changed = false;
             if (this.short_description != last_ticket.short_description) {
                 changed = true;
-                this.add_change_action_to_history(history, TicketChangeParamEnum.SHORT_DESCRIPTION, last_ticket.short_description, this.short_description);
+                await this.add_change_action_to_history(history, TicketChangeParamEnum.SHORT_DESCRIPTION, last_ticket.short_description, this.short_description);
             }
             if (this.description != last_ticket.description) {
                 changed = true;
-                this.add_change_action_to_history(history, TicketChangeParamEnum.DESCRIPTION, last_ticket.description, this.description);
+                await this.add_change_action_to_history(history, TicketChangeParamEnum.DESCRIPTION, last_ticket.description, this.description);
             }
             if (this.type != last_ticket.type) {
                 changed = true;
-                this.add_change_action_to_history(history, TicketChangeParamEnum.TYPE, last_ticket.type, this.type);
+                await this.add_change_action_to_history(history, TicketChangeParamEnum.TYPE, last_ticket.type, this.type);
             }
             if (this.status != last_ticket.status) {
                 changed = true;
-                this.add_change_action_to_history(history, TicketChangeParamEnum.STATUS, last_ticket.status, this.status);
+                await this.add_change_action_to_history(history, TicketChangeParamEnum.STATUS, last_ticket.status, this.status);
             }
             if (this.service_id != last_ticket.service_id) {
                 changed = true;
                 const last_service = await Service.findOne(last_ticket.service_id);
                 const service = await Service.findOne(this.service_id);
-                this.add_change_action_to_history(history, TicketChangeParamEnum.SERVICE, service.service_id, last_service.service_id); // Todo: Add name to service
+                await this.add_change_action_to_history(history, TicketChangeParamEnum.SERVICE, service.service_id, last_service.service_id); // Todo: Add name to service
             }
         }
     }
@@ -215,9 +228,11 @@ export class Ticket extends BaseEntity {
         action.value1 = column;
         action.value2 = old;
         action.value3 = current;
-        TicketHistoryAction.update(action.id, action);
+        await TicketHistoryAction.update(action.id, action);
     }
 
+    // TODO: fix issue with constructor
+/*
     public static async fromTemplate(tt: TicketTemplate): Promise<Ticket> {
         const t = new Ticket();
         if (tt.short_description)
@@ -242,4 +257,5 @@ export class Ticket extends BaseEntity {
             t.group_id = tt.group_id;
         return t;
     }
+    */
 }

@@ -1,5 +1,5 @@
 import { Field, ID, ObjectType } from "type-graphql";
-import { BaseEntity, Column, Entity, JoinColumn, ManyToOne, PrimaryGeneratedColumn } from "typeorm";
+import { BaseEntity, Column, CreateDateColumn, Entity, JoinColumn, ManyToOne, PrimaryGeneratedColumn } from "typeorm";
 import { User } from "./User";
 
 @ObjectType()
@@ -22,5 +22,7 @@ export class TicketComment extends BaseEntity {
     @JoinColumn({ name: 'creator_id' })
     creator: User;
 
-    // created_at
+    @Field(() => Date)
+    @CreateDateColumn()
+    created_at: Date;
 }
