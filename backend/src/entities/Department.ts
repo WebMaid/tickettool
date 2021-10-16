@@ -3,6 +3,7 @@ import { BaseEntity, Column, Entity, JoinTable, ManyToMany, OneToMany, PrimaryGe
 import { Role } from "./Role";
 import { Ticket } from "./Ticket";
 import { TicketHistory } from "./TicketHistory";
+import { TicketTemplate } from "./TicketTemplate";
 import { User } from "./User";
 
 @ObjectType()
@@ -33,9 +34,9 @@ export class Department extends BaseEntity {
     @OneToMany(type => Ticket, t => t.previous_responsible_department)
     previous_ticket_responsibilities: Ticket[];
 
-    @Field(() => [Ticket])
-    @OneToMany(type => Ticket, t => t.responsible_department)
-    template_responsibilities: Ticket[];
+    @Field(() => [TicketTemplate])
+    @OneToMany(type => TicketTemplate, tt => tt.responsible_department)
+    template_responsibilities: TicketTemplate[];
 
     @Field(() => [TicketHistory])
     @OneToMany(type => TicketHistory, t => t.responsible_department)
