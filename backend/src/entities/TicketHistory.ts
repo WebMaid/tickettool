@@ -1,6 +1,5 @@
 import { Field, ID, ObjectType } from "type-graphql";
-import { AfterUpdate, BaseEntity, BeforeUpdate, Column, CreateDateColumn, Entity, JoinColumn, ManyToOne, OneToMany, PrimaryGeneratedColumn } from "typeorm";
-import { TicketHistoryActionEnum } from "../enums/TicketHistoryActionEnum";
+import { BaseEntity, Column, CreateDateColumn, Entity, JoinColumn, ManyToOne, OneToMany, PrimaryGeneratedColumn } from "typeorm";
 import { Department } from "./Department";
 import { Ticket } from "./Ticket";
 import { TicketHistoryAction } from "./TicketHistoryAction";
@@ -14,34 +13,34 @@ export class TicketHistory extends BaseEntity {
     id: string;
 
     @Field()
-    @Column({type: "uuid"})
+    @Column({ type: "uuid" })
     responsible_user_id: string;
 
     @Field(() => User)
     @ManyToOne(type => User, u => u.history_responsibilities)
-    @JoinColumn({name: 'responsible_user_id'})
+    @JoinColumn({ name: 'responsible_user_id' })
     responsible_user: User;
 
     @Field()
-    @Column({type: "uuid"})
+    @Column({ type: "uuid" })
     responsible_department_id: string;
 
     @Field(() => Department)
     @ManyToOne(type => Department, u => u.history_responsibilities)
-    @JoinColumn({name: 'responsible_department_id'})
+    @JoinColumn({ name: 'responsible_department_id' })
     responsible_department: Department;
-    
+
     @Field(() => [TicketHistoryAction])
     @OneToMany(type => TicketHistoryAction, tha => tha.history)
     actions: TicketHistoryAction[];
 
     @Field()
-    @Column({type: "uuid"})
+    @Column({ type: "uuid" })
     ticket_id: string;
-    
+
     @Field(() => Ticket)
     @ManyToOne(type => Ticket, s => s.histories)
-    @JoinColumn({name: 'ticket_id'})
+    @JoinColumn({ name: 'ticket_id' })
     ticket: Ticket;
 
     @Field(() => Date)

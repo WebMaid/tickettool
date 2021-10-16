@@ -12,30 +12,30 @@ export class ServiceHistory extends BaseEntity {
     id: string;
 
     @Field()
-    @Column({type: "uuid"})
+    @Column({ type: "uuid" })
     responsible_user_id: string;
 
     @Field(() => User)
     @ManyToOne(type => User, u => u.history_responsibilities)
-    @JoinColumn({name: 'responsible_user_id'})
+    @JoinColumn({ name: 'responsible_user_id' })
     responsible_user: User;
-    
+
     @Field()
-    @Column({type: "uuid"})
+    @Column({ type: "uuid" })
     action_id: string;
-    
+
     @Field(() => ServiceHistoryAction)
     @ManyToOne(type => ServiceHistoryAction, sha => sha.histories)
-    @JoinColumn({name: 'action_id'})
+    @JoinColumn({ name: 'action_id' })
     action: ServiceHistoryAction;
 
     @Field()
-    @Column({type: "uuid"})
+    @Column({ type: "uuid" })
     service_id: string;
-    
+
     @Field(() => Service)
     @ManyToOne(type => Service, s => s.histories)
-    @JoinColumn({name: 'service_id'})
+    @JoinColumn({ name: 'service_id' })
     service: Service;
 
     @Field(() => Date)

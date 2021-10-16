@@ -12,9 +12,9 @@ import { ValidationError } from "../validators/ValidationError";
 class TicketCreateResponse {
     @Field(() => Ticket, { nullable: true, defaultValue: null })
     ticket?: Ticket;
-    @Field(() => [ServerError], {defaultValue: []})
+    @Field(() => [ServerError], { defaultValue: [] })
     errors?: ServerError[];
-    @Field(() => [ValidationError], {defaultValue: []})
+    @Field(() => [ValidationError], { defaultValue: [] })
     validation_errors?: ValidationError[];
 }
 
@@ -22,9 +22,9 @@ class TicketCreateResponse {
 class TicketUpdateResponse {
     @Field(() => Ticket, { nullable: true, defaultValue: null })
     ticket?: Ticket;
-    @Field(() => [ServerError], {defaultValue: []})
+    @Field(() => [ServerError], { defaultValue: [] })
     errors?: ServerError[];
-    @Field(() => [ValidationError], {defaultValue: []})
+    @Field(() => [ValidationError], { defaultValue: [] })
     validation_errors?: ValidationError[];
 }
 
@@ -175,7 +175,7 @@ export class TicketResolver {
                 }
                 db_ticket.responsible_user = await User.findOne(db_ticket.responsible_user_id);
                 db_ticket.issuer = await User.findOne(db_ticket.issuer_id);
-                
+
                 await pubSub.publish(Subscriptions.UPDATE_TICKET, db_ticket);
                 return {
                     ticket: db_ticket

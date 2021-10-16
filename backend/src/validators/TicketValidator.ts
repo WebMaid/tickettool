@@ -8,16 +8,16 @@ import { ValidationError } from "./ValidationError";
 import { Validator } from "./Validator";
 
 export class TicketValidator extends Validator {
-    static async validate({short_description, description, type, status, responsible_user_id, responsible_department_id, issuer_id, issuer_department_id, service_id, group_id, owner_group_id}) {
+    static async validate({ short_description, description, type, status, responsible_user_id, responsible_department_id, issuer_id, issuer_department_id, service_id, group_id, owner_group_id }) {
         let error;
         let errors: ValidationError[] = [];
-        if (short_description && (error = Validator.validateString(short_description, {min: 5, max: 64})) != null) {
+        if (short_description && (error = Validator.validateString(short_description, { min: 5, max: 64 })) != null) {
             errors.push({
                 field: "short_description",
                 message: "Must contain 5-64 characters!"
             });
         }
-        if (description && (error = Validator.validateString(description, {min: 5, max: 65535})) != null) {
+        if (description && (error = Validator.validateString(description, { min: 5, max: 65535 })) != null) {
             errors.push({
                 field: "description",
                 message: "Must contain 5-65535 characters!"

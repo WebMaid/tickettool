@@ -10,7 +10,6 @@ import { Service } from "./Service";
 import { TicketGroup } from "./TicketGroup";
 import { TicketHistory } from "./TicketHistory";
 import { TicketHistoryAction } from "./TicketHistoryAction";
-import { TicketTemplate } from "./TicketTemplate";
 import { User } from "./User";
 
 let last_ticket = null;
@@ -37,15 +36,15 @@ export class Ticket extends BaseEntity {
     id: string;
 
     @Field(() => String)
-    @Column({type: "varchar", length: 10, update: false, unique: true, nullable: false})
+    @Column({ type: "varchar", length: 10, update: false, unique: true, nullable: false })
     ticket_id: string;
 
     @Field(() => String)
-    @Column({type: "varchar", length: 64, nullable: false})
+    @Column({ type: "varchar", length: 64, nullable: false })
     short_description: string;
 
     @Field()
-    @Column({type: "text", nullable: false})
+    @Column({ type: "text", nullable: false })
     description: string;
 
     @Field(() => String)
@@ -60,7 +59,7 @@ export class Ticket extends BaseEntity {
     @Column({ type: "uuid", nullable: true })
     responsible_user_id: string;
 
-    @Field(() => User, {nullable: true})
+    @Field(() => User, { nullable: true })
     @ManyToOne(type => User, u => u.ticket_responsibilities)
     @JoinColumn({ name: 'responsible_user_id' })
     responsible_user: User;
@@ -79,7 +78,7 @@ export class Ticket extends BaseEntity {
     previous_responsible_department_id: string;
 
     @Field(() => Department)
-    @ManyToOne(type => Department, u => u.previous_ticket_responsibilities, {nullable: true})
+    @ManyToOne(type => Department, u => u.previous_ticket_responsibilities, { nullable: true })
     @JoinColumn({ name: 'previous_responsible_department_id' })
     previous_responsible_department: Department;
 
@@ -87,7 +86,7 @@ export class Ticket extends BaseEntity {
     @Column({ type: "uuid", nullable: true, update: false })
     issuer_id: string;
 
-    @Field(() => User, {nullable: true})
+    @Field(() => User, { nullable: true })
     @ManyToOne(type => User, u => u.issued)
     @JoinColumn({ name: 'issuer_id' })
     issuer: User;
@@ -114,18 +113,18 @@ export class Ticket extends BaseEntity {
     @Column({ type: "uuid", nullable: true, default: null })
     group_id: string;
 
-    @Field(() => TicketGroup, {nullable: true})
+    @Field(() => TicketGroup, { nullable: true })
     @ManyToOne(type => TicketGroup, tg => tg.members)
     @JoinColumn({ name: 'group_id' })
     group: TicketGroup;
 
     @Field()
-    @Column({type: "uuid", default: null, nullable: true})
+    @Column({ type: "uuid", default: null, nullable: true })
     owner_group_id: string;
 
-    @Field(() => TicketGroup, {nullable: true})
+    @Field(() => TicketGroup, { nullable: true })
     @OneToOne(type => TicketGroup, tg => tg.owner)
-    @JoinColumn({name: 'owner_group_id'})
+    @JoinColumn({ name: 'owner_group_id' })
     owner_group: TicketGroup;
 
     @Field(() => [TicketHistory])
@@ -140,8 +139,8 @@ export class Ticket extends BaseEntity {
     @UpdateDateColumn()
     updated_at: Date;
 
-    @Field(() => Date, {nullable: true})
-    @Column({type: "timestamp", nullable: true, default: null})
+    @Field(() => Date, { nullable: true })
+    @Column({ type: "timestamp", nullable: true, default: null })
     closed_at: Date;
 
     @BeforeInsert()
@@ -171,10 +170,10 @@ export class Ticket extends BaseEntity {
 
     @AfterUpdate()
     private async add_history_action_entries() {
-        const history = await TicketHistory.findOne({where: {ticket_id: this.id}, order: {created_at: 'DESC'}});
-        
-        const actions = await TicketHistoryAction.find({where: {history_id: history.id}});
-        
+        const history = await TicketHistory.findOne({ where: { ticket_id: this.id }, order: { created_at: 'DESC' } });
+
+        const actions = await TicketHistoryAction.find({ where: { history_id: history.id } });
+
         if (actions.length >= 1) {
             const action = actions[0];
             switch (action.type) {
@@ -188,12 +187,12 @@ export class Ticket extends BaseEntity {
                     break;
                 case TicketHistoryActionEnum.GROUP_ADD:
                 case TicketHistoryActionEnum.GROUP_REMOVE:
-                    const ticket = await Ticket.findOne({where: {owner_group_id: this.group_id}})
+                    const ticket = await Ticket.findOne({ where: { owner_group_id: this.group_id } })
                     action.value1 = ticket.ticket_id;
                     break;
             }
             await TicketHistoryAction.update(action.id, action);
-            
+
         } else {
             let changed = false;
             if (this.short_description != last_ticket.short_description) {
@@ -232,30 +231,30 @@ export class Ticket extends BaseEntity {
     }
 
     // TODO: fix issue with constructor
-/*
-    public static async fromTemplate(tt: TicketTemplate): Promise<Ticket> {
-        const t = new Ticket();
-        if (tt.short_description)
-            t.short_description = tt.short_description;
-        if (tt.description)
-            t.description = tt.description;
-        if (tt.type)
-            t.type = tt.type;
-        if (tt.create_group) {
-            const insert = await TicketGroup.insert(new TicketGroup());
-            t.owner_group_id = insert.identifiers[0].id;
+    /*
+        public static async fromTemplate(tt: TicketTemplate): Promise<Ticket> {
+            const t = new Ticket();
+            if (tt.short_description)
+                t.short_description = tt.short_description;
+            if (tt.description)
+                t.description = tt.description;
+            if (tt.type)
+                t.type = tt.type;
+            if (tt.create_group) {
+                const insert = await TicketGroup.insert(new TicketGroup());
+                t.owner_group_id = insert.identifiers[0].id;
+            }
+            if (tt.responsible_user_id)
+                t.responsible_user_id = tt.responsible_user_id;
+            if (tt.responsible_department_id)
+                t.responsible_department_id = tt.responsible_department_id;
+            if (tt.issuer_department)
+                t.issuer_department_id = tt.issuer_department_id;
+            if (tt.service_id)
+                t.service_id = tt.service_id;
+            if (tt.group_id)
+                t.group_id = tt.group_id;
+            return t;
         }
-        if (tt.responsible_user_id)
-            t.responsible_user_id = tt.responsible_user_id;
-        if (tt.responsible_department_id)
-            t.responsible_department_id = tt.responsible_department_id;
-        if (tt.issuer_department)
-            t.issuer_department_id = tt.issuer_department_id;
-        if (tt.service_id)
-            t.service_id = tt.service_id;
-        if (tt.group_id)
-            t.group_id = tt.group_id;
-        return t;
-    }
-    */
+        */
 }

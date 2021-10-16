@@ -1,5 +1,3 @@
-import { PubSub } from "graphql-subscriptions";
-import { SECRET_CHARS } from "./auth/auth";
 import { Service } from "./entities/Service";
 import { Ticket } from "./entities/Ticket";
 import { define as defineUsers } from './helpers/UserData';

@@ -1,10 +1,10 @@
 import { Arg, Ctx, Field, Mutation, ObjectType, Query, Resolver } from "type-graphql";
-import { User } from "../entities/User";
-import { decrypt_personalized_data, decrypt_with_rsa_private_key, encrypt_personalized_data, generate_access_token, generate_refresh_token, send_refresh_token, verify_password } from '../auth/auth';
-import { ServerContext } from "../ServerContext";
+import { decrypt_with_rsa_private_key, generate_access_token, generate_refresh_token, send_refresh_token, verify_password } from '../auth/auth';
 import { Client } from "../entities/Client";
-import { find as findUser } from '../helpers/UserData';
+import { User } from "../entities/User";
 import { ServerError } from "../helpers/ServerError";
+import { find as findUser } from '../helpers/UserData';
+import { ServerContext } from "../ServerContext";
 
 @ObjectType()
 class Test {
@@ -14,7 +14,7 @@ class Test {
 
 @ObjectType()
 class LoginResponse {
-    @Field({nullable: true})
+    @Field({ nullable: true })
     accessToken: string;
     @Field(() => User, { nullable: true })
     user: User | null;
@@ -34,13 +34,13 @@ export class UserResolver {
     ): Promise<LoginResponse> {
         let user: User = null;
         if (mail.includes("@")) {
-            const local_user = await findUser({mail: mail})
+            const local_user = await findUser({ mail: mail })
             if (local_user) {
                 user = await User.findOne(local_user.id);
             }
         }
         else {
-            const local_user = await findUser({username: mail})
+            const local_user = await findUser({ username: mail })
             if (local_user) {
                 user = await User.findOne(local_user.id);
             }
@@ -93,6 +93,6 @@ export class UserResolver {
 
     @Query(() => Test, { nullable: true })
     hi(): Test {
-        return {id: 1};
+        return { id: 1 };
     }
 }

@@ -14,7 +14,7 @@ export class Department extends BaseEntity {
     id: string;
 
     @Field()
-    @Column({type: 'varchar', length: 16, nullable: false, unique: true})
+    @Column({ type: 'varchar', length: 16, nullable: false, unique: true })
     name: string;
 
     @Field(() => [User])
@@ -23,7 +23,7 @@ export class Department extends BaseEntity {
 
     @Field(() => [Role])
     @ManyToMany(type => Role, r => r.users)
-    @JoinTable({name: 'department_roles', inverseJoinColumn: {name: 'department_id', referencedColumnName: 'id'}, joinColumn: {name: 'role_id', referencedColumnName: 'id'}})
+    @JoinTable({ name: 'department_roles', inverseJoinColumn: { name: 'department_id', referencedColumnName: 'id' }, joinColumn: { name: 'role_id', referencedColumnName: 'id' } })
     roles: Role[];
 
     @Field(() => [Ticket])

@@ -44,7 +44,7 @@ export const encrypt_private_key = (key: string): string => {
 
 export const decrypt_personalized_data = (hash: string, key: string): string => {
     if (!hash)
-        return null;    
+        return null;
     const decipher = crypto.createDecipheriv(PERSONALIZED_DATA_ALGORITHM, process.env.PERSONALIZED_DATA_HASH_KEY, key);
     return Buffer.concat([decipher.update(Buffer.from(hash, 'hex')), decipher.final()]).toString();
 }
@@ -65,8 +65,8 @@ export const verify_password = (to_check: string, original: string, decrypt_key:
 
 export const hash_password = (password: string): string => {
     return createHmac(PASSWORD_HASH_ALGORITHM, process.env.PASSWORD_HASH_KEY!)
-    .update(password)
-    .digest('hex')
+        .update(password)
+        .digest('hex')
 }
 
 export const encrypt_with_rsa_public_key = (value, public_key) => {
@@ -81,16 +81,16 @@ export const decrypt_with_rsa_private_key = (hash, private_key): string => {
         var decrypted = crypto.privateDecrypt({
             key: private_key.toString(),
             passphrase: process.env.PRIVATE_KEY_PASSPHRASE,
-          }, buffer);
+        }, buffer);
         return decrypted.toString("utf8");
     } catch (err) {
         return "";
     }
 };
 
-const sign_data_jwt = async ( data: AccessTokenData|RefreshTokenData , options: SignOptions = {}, refresh: boolean = false): Promise<string> => {
+const sign_data_jwt = async (data: AccessTokenData | RefreshTokenData, options: SignOptions = {}, refresh: boolean = false): Promise<string> => {
     const id = data.id;
-    return User.findOne({select: ["jwt_secret"], where: {id: id}}).then(user => {
+    return User.findOne({ select: ["jwt_secret"], where: { id: id } }).then(user => {
         if (!user)
             return undefined;
         const hashedSecret = generate_hashed_secret(user.jwt_secret, refresh)
@@ -99,14 +99,14 @@ const sign_data_jwt = async ( data: AccessTokenData|RefreshTokenData , options: 
     });
 }
 
-const verify_data_jwt = async (token: string, refresh: boolean = false ) => {
+const verify_data_jwt = async (token: string, refresh: boolean = false) => {
     if (!token || !token.includes("."))
         throw new Error('invalid token');
     const body = token.split(".")[1];
     const data = JSON.parse(Buffer.from(body, 'base64').toString('ascii'));
     if (!data || data.sub.toString().match(/\\d+/))
         throw new Error('invalid token');
-    return await User.findOne({select: ["jwt_secret"], where: {id: data.sub}}).then(async (user) => {
+    return await User.findOne({ select: ["jwt_secret"], where: { id: data.sub } }).then(async (user) => {
         if (!user)
             throw new Error('invalid token');
         const hashedSecret = generate_hashed_secret(user.jwt_secret, refresh)
@@ -115,7 +115,7 @@ const verify_data_jwt = async (token: string, refresh: boolean = false ) => {
 }
 
 const generate_hashed_secret = (jwt_secret: string, refresh: boolean): string => {
-    return refresh ? 
+    return refresh ?
         createHmac('sha512', process.env.REFRESH_TOKEN_SECRET!)
             .update(jwt_secret)
             .digest('base64') :
@@ -142,7 +142,7 @@ export const generate_random_secret = (lenght: number): string => {
     let password = "";
     for (let i = 0; i < lenght; i++) {
         const randomNumber = Math.floor(Math.random() * SECRET_CHARS.length);
-        password += SECRET_CHARS.substring(randomNumber, randomNumber +1);
+        password += SECRET_CHARS.substring(randomNumber, randomNumber + 1);
     }
     return password;
-} 
+}

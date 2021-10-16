@@ -1,4 +1,4 @@
-import { createCipheriv, createDecipheriv, createHmac, randomBytes } from "crypto";
+import { createCipheriv, createDecipheriv, randomBytes } from "crypto";
 import { Field, ObjectType } from "type-graphql";
 import { User } from "../entities/User";
 
@@ -46,14 +46,14 @@ export const define = async () => {
 
 export const encrypt_local_personalized_data = (value: string): string => {
     if (!value)
-        return null;    
-    
+        return null;
+
     const cipher = createCipheriv('aes-256-ctr', HASH_KEY, IV)
     return Buffer.concat([cipher.update(value), cipher.final()]).toString('hex');
 }
 export const decrypt_local_personalized_data = (hash: string): string => {
     if (!hash)
-        return null;    
+        return null;
     const decipher = createDecipheriv('aes-256-ctr', HASH_KEY, IV);
     return Buffer.concat([decipher.update(Buffer.from(hash, 'hex')), decipher.final()]).toString();
 }
@@ -69,7 +69,7 @@ export const find = async (where: FindParams): Promise<UserData> => {
     return null;
 }
 
-export const findStartingWith = async (where: FindParams): Promise<|UserData[]> => {
+export const findStartingWith = async (where: FindParams): Promise<| UserData[]> => {
     if (where.mail) {
         return await users.filter(u => decrypt_local_personalized_data(u.mail).startsWith(where.mail.toLowerCase()))
     } else if (where.username) {

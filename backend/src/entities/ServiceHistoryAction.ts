@@ -11,19 +11,19 @@ export class ServiceHistoryAction extends BaseEntity {
     id: string;
 
     @Field(() => String)
-    @Column({type: "enum", enum: ServiceHistoryActionEnum, default: null, nullable: true})
+    @Column({ type: "enum", enum: ServiceHistoryActionEnum, default: null, nullable: true })
     type: ServiceHistoryActionEnum;
 
     @Field(() => String)
-    @Column({nullable: true})
+    @Column({ nullable: true })
     value1: string;
 
     @Field(() => String)
-    @Column({nullable: true})
+    @Column({ nullable: true })
     value2: string;
 
     @Field(() => String)
-    @Column({nullable: true})
+    @Column({ nullable: true })
     value3: string;
 
     @Field(() => [ServiceHistory])

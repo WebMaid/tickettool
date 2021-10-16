@@ -1,6 +1,5 @@
 import { Field, ID, ObjectType } from "type-graphql";
-import { BaseEntity, Column, Entity, JoinColumn, ManyToOne, OneToOne, PrimaryGeneratedColumn } from "typeorm";
-import { TicketStatusEnum } from "../enums/TicketStatusEnum";
+import { BaseEntity, Column, Entity, JoinColumn, ManyToOne, PrimaryGeneratedColumn } from "typeorm";
 import { TicketTypeEnum } from "../enums/TicketTypeEnum";
 import { Department } from "./Department";
 import { Service } from "./Service";
@@ -13,13 +12,13 @@ export class TicketTemplate extends BaseEntity {
     @Field(() => ID)
     @PrimaryGeneratedColumn('uuid')
     id: string;
-    
+
     @Field()
-    @Column({default: null})
+    @Column({ default: null })
     short_description: string;
 
     @Field()
-    @Column({default: null})
+    @Column({ default: null })
     description: string;
 
     @Field(() => String)
@@ -27,7 +26,7 @@ export class TicketTemplate extends BaseEntity {
     type: TicketTypeEnum;
 
     @Field(() => Boolean)
-    @Column({default: false})
+    @Column({ default: false })
     create_group: boolean;
 
     @Field()

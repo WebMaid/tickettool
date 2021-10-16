@@ -1,7 +1,4 @@
-import { ApolloServer } from "apollo-server-express";
 import cors = require("cors");
-import { buildSchema } from "type-graphql";
-import { resolvers } from "./resolvers";
 
 export const port = 3001;
 export const whitelisted_hosts = [

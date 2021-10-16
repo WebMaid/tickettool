@@ -1,7 +1,8 @@
 import { randomBytes } from "crypto";
-import { Field, ObjectType, } from "type-graphql";
+import { Field, ObjectType } from "type-graphql";
 import { AfterInsert, AfterLoad, AfterUpdate, BaseEntity, BeforeInsert, BeforeRemove, BeforeUpdate, Column, Entity, JoinColumn, JoinTable, ManyToMany, ManyToOne, OneToMany, PrimaryGeneratedColumn } from "typeorm";
-import { decrypt_personalized_data, decrypt_personalized_key, encrypt_personalized_data, encrypt_personalized_key, hash_password, generate_random_secret } from "../auth/auth";
+import { decrypt_personalized_data, decrypt_personalized_key, encrypt_personalized_data, encrypt_personalized_key, generate_random_secret, hash_password } from "../auth/auth";
+import * as helper from '../helpers/UserData';
 import { Department } from "./Department";
 import { Permission } from "./Permission";
 import { Role } from "./Role";
@@ -9,7 +10,6 @@ import { Ticket } from "./Ticket";
 import { TicketComment } from "./TicketComment";
 import { TicketHistory } from "./TicketHistory";
 import { TicketTemplate } from "./TicketTemplate";
-import * as helper from '../helpers/UserData';
 
 
 let key = "";
@@ -18,8 +18,8 @@ let key = "";
 @ObjectType()
 @Entity()
 export class User extends BaseEntity {
-    
-    constructor(username: string, displayName: string, mail: string, 
+
+    constructor(username: string, displayName: string, mail: string,
         password: string, department_id: string, phoneNumber?: string) {
         super();
         this.username = username;
@@ -29,64 +29,80 @@ export class User extends BaseEntity {
         this.department_id = department_id;
         this.phoneNumber = phoneNumber ?? null;
     }
-    
+
     @Field()
     @PrimaryGeneratedColumn('uuid')
     id: string;
-    
+
     @Field()
-    @Column({ type: 'varchar', length: 96, nullable: true, transformer: {  // original 32
-        to: (value: string) => encrypt_personalized_data(value.toLowerCase(), key),
-        from: (value: string) => value
-    } })
+    @Column({
+        type: 'varchar', length: 96, nullable: true, transformer: {  // original 32
+            to: (value: string) => encrypt_personalized_data(value.toLowerCase(), key),
+            from: (value: string) => value
+        }
+    })
     username: string;
 
     @Field()
-    @Column({ type: 'varchar', length: 192, nullable: true, transformer: {  // original 64
-        to: (value: string) => encrypt_personalized_data(value, key),
-        from: (value: string) => value
-    }  })
+    @Column({
+        type: 'varchar', length: 192, nullable: true, transformer: {  // original 64
+            to: (value: string) => encrypt_personalized_data(value, key),
+            from: (value: string) => value
+        }
+    })
     displayName: string;
 
     @Field()
-    @Column({ type: 'varchar', length: 192, nullable: false, unique: true, transformer: { // original 64
-        to: (value: string) => encrypt_personalized_data(value.toLowerCase(), key),
-        from: (value: string) => value
-    }  })
+    @Column({
+        type: 'varchar', length: 192, nullable: false, unique: true, transformer: { // original 64
+            to: (value: string) => encrypt_personalized_data(value.toLowerCase(), key),
+            from: (value: string) => value
+        }
+    })
     mail: string;
 
-    @Column({ type: 'varchar', length: 768, nullable: false, transformer: { // original 256
-        to: (value: string) => encrypt_personalized_data(value, key),
-        from: (value: string) => value
-    }  })
+    @Column({
+        type: 'varchar', length: 768, nullable: false, transformer: { // original 256
+            to: (value: string) => encrypt_personalized_data(value, key),
+            from: (value: string) => value
+        }
+    })
     password: string;
 
     @Field()
-    @Column({ type: 'varchar', length: 48, nullable: true, unique: true, transformer: { // original 16
-        to: (value: string) => encrypt_personalized_data(value, key),
-        from: (value: string) => value
-    }  })
+    @Column({
+        type: 'varchar', length: 48, nullable: true, unique: true, transformer: { // original 16
+            to: (value: string) => encrypt_personalized_data(value, key),
+            from: (value: string) => value
+        }
+    })
     phoneNumber: string;
 
-    @Column({ type: 'varchar', length: 384, nullable: true, transformer: { // original 128
-        to: (value: string) => encrypt_personalized_data(value, key),
-        from: (value: string) => value
-    }  })
+    @Column({
+        type: 'varchar', length: 384, nullable: true, transformer: { // original 128
+            to: (value: string) => encrypt_personalized_data(value, key),
+            from: (value: string) => value
+        }
+    })
     two_factor_secret: string;
 
-    @Column({ type: 'varchar', length: 384, nullable: false, transformer: { // original 128
-        to: (value: string) => encrypt_personalized_data(value, key),
-        from: (value: string) => value
-    }  })
+    @Column({
+        type: 'varchar', length: 384, nullable: false, transformer: { // original 128
+            to: (value: string) => encrypt_personalized_data(value, key),
+            from: (value: string) => value
+        }
+    })
     jwt_secret: string;
 
     @Column("int", { default: 0, nullable: false })
     jwt_version: number;
 
-    @Column({ type: 'varchar', length: 32, nullable: false, transformer: {
-        to: (value: string) => encrypt_personalized_key(value),
-        from: (value: string) => decrypt_personalized_key(value)
-    }  })
+    @Column({
+        type: 'varchar', length: 32, nullable: false, transformer: {
+            to: (value: string) => encrypt_personalized_key(value),
+            from: (value: string) => decrypt_personalized_key(value)
+        }
+    })
     personalized_secret: string;
 
     @Field(() => [Role])

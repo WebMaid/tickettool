@@ -11,16 +11,16 @@ export class Permission extends BaseEntity {
     id: string;
 
     @Field()
-    @Column({type: 'text', nullable: false, unique: true})
+    @Column({ type: 'text', nullable: false, unique: true })
     name: string;
 
     @Field(() => [Role])
     @ManyToMany(type => Role, r => r.permissions)
-    @JoinTable({name: 'role_permissions', joinColumn: {name: 'permission_id', referencedColumnName: 'id'}, inverseJoinColumn: {name: 'role_id', referencedColumnName: 'id'}})
+    @JoinTable({ name: 'role_permissions', joinColumn: { name: 'permission_id', referencedColumnName: 'id' }, inverseJoinColumn: { name: 'role_id', referencedColumnName: 'id' } })
     roles: Role[];
-    
+
     @Field(() => [User])
     @ManyToMany(type => User, u => u.permissions)
-    @JoinTable({name: 'user_permissions', joinColumn: {name: 'permission_id', referencedColumnName: 'id'}, inverseJoinColumn: {name: 'user_id', referencedColumnName: 'id'}})
+    @JoinTable({ name: 'user_permissions', joinColumn: { name: 'permission_id', referencedColumnName: 'id' }, inverseJoinColumn: { name: 'user_id', referencedColumnName: 'id' } })
     users: User[];
 }
