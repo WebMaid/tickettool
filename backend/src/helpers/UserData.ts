@@ -1,7 +1,6 @@
 import { createCipheriv, createDecipheriv, createHmac, randomBytes } from "crypto";
 import { Field, ObjectType } from "type-graphql";
 import { User } from "../entities/User";
-import { generate_random_secret } from "../globals";
 
 @ObjectType()
 class FindParams {
@@ -15,7 +14,7 @@ class FindParams {
     displayName?: string;
 }
 
-const HASH_KEY = generate_random_secret(32);
+const HASH_KEY = "HELLOWORLDHELLOWORLDHELLOWORLD00"
 const IV = randomBytes(8).toString('hex');
 
 @ObjectType()
@@ -47,7 +46,8 @@ export const define = async () => {
 
 export const encrypt_local_personalized_data = (value: string): string => {
     if (!value)
-        return null;
+        return null;    
+    
     const cipher = createCipheriv('aes-256-ctr', HASH_KEY, IV)
     return Buffer.concat([cipher.update(value), cipher.final()]).toString('hex');
 }
