@@ -1,0 +1,139 @@
+{
+    "fields": [
+        {
+            "type": "text",
+            "value": "Hello World!",
+            "style": {
+                "type": "paragraph", /* quote, title, subtitle */
+                "bold": false,
+                "italic": false,
+                "decoration": "none",
+                "color": "#000000",
+                "background": "#00000000",
+                "font-family": "Frutiger",
+                "position": "right"
+            },
+            "editable": false
+        },
+        {
+            "type": "image",
+            "value": "base64-String",
+            "description": null,
+            "sort": "icon" /* available are   */
+        },
+        {
+            "type": "list",
+            "values": [
+                {
+                    "type": "text",
+                    "value": "First",
+                    "style": {
+                        "type": "paragraph",
+                        "bold": false,
+                        "italic": false,
+                        "decoration": "none",
+                        "color": "#000000",
+                        "background": "#00000000",
+                        "font-family": "Frutiger",
+                        "position": "right"
+                    }
+                },
+                {
+                    "type": "text",
+                    "value": "Second",
+                    "style": {
+                        "type": "paragraph",
+                        "bold": false,
+                        "italic": false,
+                        "decoration": "none",
+                        "color": "#000000",
+                        "background": "#00000000",
+                        "font-family": "Frutiger",
+                        "position": "right"
+                    }
+                },
+                {
+                    "type": "text",
+                    "value": "Third",
+                    "style": {
+                        "type": "paragraph",
+                        "bold": false,
+                        "italic": false,
+                        "decoration": "none",
+                        "color": "#000000",
+                        "background": "#00000000",
+                        "font-family": "Frutiger",
+                        "position": "right"
+                    }
+                }
+            ], /* available are text and list */
+            "sort": "dots"
+        },
+        {
+            "type": "table",
+            "header": {
+                "values": [
+                    {
+                        "width": 1,
+                        "value": "Line 1"
+                    }
+                ],
+                "style": {
+                    "bold": false,
+                    "italic": false,
+                    "decoration": "none",
+                    "color": "#000000",
+                    "background": "#00000000",
+                    "font-family": "Frutiger",
+                    "position": "right"
+                }
+            },
+            "body": {
+                "values": [
+                    [] /* available are text and image */
+                ],
+                "style": {
+                    "bold": false,
+                    "italic": false,
+                    "decoration": "none",
+                    "color": "#000000",
+                    "background": "#00000000",
+                    "font-family": "Frutiger",
+                    "position": "right"
+                }
+            }
+        },
+        {
+            "type": "select",
+            "value": 1,
+            "options": [
+                "Option 1",
+                "Option 2",
+                "Option 3"
+            ],
+            "default": 1,
+            "multiple": false
+        },
+        {
+            "type": "checkbox",
+            "value": true,
+            "default": true
+        },
+        {
+            "type": "input",
+            "value": "",
+            "sort": "text", /* file, number, mail, user, department, service */
+            "placeholder": "Hier eingeben"
+            /*
+            "allowed": ["image"],
+            "min": 1,
+            "max": 6,
+            */
+        },
+        {
+            "type": "file",
+            "data_id": "ffcc-0018-4851935-13581469",
+            "downloadable": false
+        }
+    ]
+}
