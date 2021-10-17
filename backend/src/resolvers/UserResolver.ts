@@ -107,12 +107,4 @@ export class UserResolver {
         }
 
     }
-
-    @Query(() => Test, { nullable: true })
-    hi(
-        @Ctx() context: ServerContext
-    ): Test {
-        console.log(context);
-        return { id: 1 };
-    }
 }

@@ -2,6 +2,7 @@ query CurrentUser {
     currentUser {
         id,
         username,
+        displayName,
         mail
     }
 }

@@ -104,9 +104,9 @@ export const verify_data_jwt = async (token: string, refresh: boolean = false) =
         throw new Error('invalid token');
     const body = token.split(".")[1];
     const data = JSON.parse(Buffer.from(body, 'base64').toString('ascii'));
-    if (!data || data.sub.toString().match(/\\d+/))
+    if (!data || data.id.toString().match(/\\d+/))
         throw new Error('invalid token');
-    return await User.findOne({ select: ["jwt_secret"], where: { id: data.sub } }).then(async (user) => {
+    return await User.findOne({ select: ["jwt_secret"], where: { id: data.id } }).then(async (user) => {
         if (!user)
             throw new Error('invalid token');
         const hashedSecret = generate_hashed_secret(user.jwt_secret, refresh)

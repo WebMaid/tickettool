@@ -283,7 +283,7 @@ export type ValidationError = {
 export type CurrentUserQueryVariables = Exact<{ [key: string]: never; }>;
 
 
-export type CurrentUserQuery = { __typename?: 'Query', currentUser?: { __typename?: 'User', id: string, username: string, mail: string } | null | undefined };
+export type CurrentUserQuery = { __typename?: 'Query', currentUser?: { __typename?: 'User', id: string, username: string, displayName: string, mail: string } | null | undefined };
 
 export type LoginMutationVariables = Exact<{
   password: Scalars['String'];
@@ -300,6 +300,7 @@ export const CurrentUserDocument = gql`
   currentUser {
     id
     username
+    displayName
     mail
   }
 }
