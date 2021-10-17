@@ -1,0 +1,15 @@
+mutation Login($password: String!, $mail: String!, $clientId: String!) {
+  login(password: $password, mail: $mail, client_id: $clientId) {
+    user {
+      id
+      username
+      displayName
+      mail
+    }
+    accessToken
+    error {
+      name
+      message
+    }
+  }
+}

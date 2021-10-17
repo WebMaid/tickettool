@@ -1,6 +1,6 @@
 import React from 'react';
 import { BrowserRouter, Switch, Route } from 'react-router-dom'
-import { HomePage, NotFoundPage } from './pages';
+import { HomePage, NotFoundPage, UserLoginPage } from './pages';
 import ProtectedRoute, { ProtectedRouteProps } from './helpers/ProtectedRoute';
 
 export const Routes: React.FC = () => {
@@ -19,7 +19,8 @@ const user = null;
 return (<BrowserRouter>
     <div>
       <Switch>
-        <Route exact path="/home" component={HomePage} />
+      <Route exact path="/home" component={HomePage} />
+      <Route exact path="/login" component={UserLoginPage} />
         <Route exact path="/" component={HomePage} />
         <Route path="" component={NotFoundPage} />
       </Switch>
