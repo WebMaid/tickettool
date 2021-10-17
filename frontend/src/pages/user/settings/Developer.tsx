@@ -1,26 +1,16 @@
 import React, { useState } from 'react';
 import { getUserId } from '../../../accessToken';
 import { ServerError } from '../../../generated/graphql';
-import { generateRsaKeys } from '../../../helpers/auth';
-const cryptico = require('cryptico-js');
+import { ICrypticoEncryptedKey } from '../../../helpers/cryptico/ICrypticoEncryptedKey';
+import { Cryptico } from '../../../helpers/cryptico/Cryptico';
+import { settings } from '../../../Settings';
 
 interface Props {
 
 }
 
-interface EncryptedKeyProps {
-    status: string,
-    cipher: string
-}
-
-interface DecryptedKeyProps {
-    status: string,
-    plaintext: string,
-    signature: string
-}
-
 interface GenerateApiKeyResponse {
-    api_key: EncryptedKeyProps,
+    api_key: ICrypticoEncryptedKey,
     error: ServerError | null
 }
 
@@ -29,13 +19,13 @@ export const UserSettingsDeveloperPage: React.FC<Props> = () => {
     const [apiKeys, setApiKeys] = useState(db_keys);
 
     const createNewApiKey = async (): Promise<void> => {
-        const keys = generateRsaKeys();
-        if (!keys.private_key || !keys.public_key) {
+        const keys = new Cryptico();
+        if (keys.error) {
             return;
         }
         try {
-            const encrypted_key: GenerateApiKeyResponse = await (await fetch('http://localhost:3001/generate_api_key', {
-                method: 'POST',
+            const response: GenerateApiKeyResponse = await (await fetch(settings.backend.generate_api_key.url, {
+                method: settings.backend.generate_api_key.method,
                 headers: new Headers({
                     'Accept': 'application/json',
                     'Content-Type': 'application/json',
@@ -45,8 +35,9 @@ export const UserSettingsDeveloperPage: React.FC<Props> = () => {
                     public_key: keys.public_key
                 })
             })).json();
-            const key: DecryptedKeyProps = cryptico.decrypt(encrypted_key.api_key.cipher, keys.private_key);
-            setApiKeys([...apiKeys, key.plaintext]);
+            if (!response.error) {
+                setApiKeys([...apiKeys, keys.decrypt(response.api_key)]);
+            }
         } catch (err) {
             console.log(err);
         }
@@ -60,7 +51,7 @@ export const UserSettingsDeveloperPage: React.FC<Props> = () => {
         }}>Create Key</button>
         <ul>
             {apiKeys.map((ak) =>
-                <li>{ak}</li>
+                <li className="api-key">{ak}</li>
             )}
         </ul>
     </div>)
