@@ -1,8 +1,9 @@
 import { randomBytes } from "crypto";
 import { Field, ObjectType } from "type-graphql";
-import { AfterInsert, AfterLoad, AfterUpdate, BaseEntity, BeforeInsert, BeforeRemove, BeforeUpdate, Column, Entity, JoinColumn, JoinTable, ManyToMany, ManyToOne, OneToMany, PrimaryGeneratedColumn } from "typeorm";
+import { AfterInsert, AfterLoad, AfterUpdate, BaseEntity, BeforeInsert, BeforeRemove, BeforeUpdate, Column, Entity, JoinColumn, JoinTable, ManyToMany, ManyToOne, OneToMany, OneToOne, PrimaryGeneratedColumn } from "typeorm";
 import { decrypt_personalized_data, decrypt_personalized_key, encrypt_personalized_data, encrypt_personalized_key, generate_random_secret, hash_password } from "../auth/auth";
 import * as helper from '../helpers/UserData';
+import { ApiKey } from "./ApiKey";
 import { Department } from "./Department";
 import { Permission } from "./Permission";
 import { Role } from "./Role";
@@ -10,6 +11,7 @@ import { Ticket } from "./Ticket";
 import { TicketComment } from "./TicketComment";
 import { TicketHistory } from "./TicketHistory";
 import { TicketTemplate } from "./TicketTemplate";
+import { UserSetting } from "./UserSetting";
 
 
 let key = "";
@@ -105,6 +107,15 @@ export class User extends BaseEntity {
     })
     personalized_secret: string;
 
+    @Field(() => String)
+    @Column({ type: "uuid" })
+    settings_id: string;
+
+    @Field(() => UserSetting)
+    @OneToOne(type => UserSetting, us => us.user)
+    @JoinColumn({name: 'settings_id'})
+    settings: UserSetting;
+
     @Field(() => [Role])
     @ManyToMany(type => Role, r => r.users)
     @JoinTable({ name: 'user_roles', inverseJoinColumn: { name: 'user_id', referencedColumnName: 'id' }, joinColumn: { name: 'role_id', referencedColumnName: 'id' } })
@@ -144,6 +155,10 @@ export class User extends BaseEntity {
     @JoinColumn({ name: 'department_id' })
     department: Department;
 
+    @Field(() => [ApiKey], { nullable: true })
+    @OneToMany(type => ApiKey, ak => ak.owner)
+    api_keys: ApiKey[];
+
     @BeforeInsert()
     private generateJwtSecret() {
         this.jwt_secret = generate_random_secret(128);
@@ -152,6 +167,13 @@ export class User extends BaseEntity {
     @BeforeInsert()
     private generatePersonalizedSecret() {
         this.personalized_secret = randomBytes(8).toString('hex');
+    }
+
+    @BeforeInsert()
+    private async generateDefaultSettings() {
+        const us = new UserSetting();
+        const usin = await UserSetting.insert(us);
+        this.settings_id = usin.identifiers[0].id;
     }
 
     @BeforeInsert()

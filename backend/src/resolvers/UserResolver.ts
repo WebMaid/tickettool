@@ -1,16 +1,11 @@
-import { Arg, Ctx, Field, Mutation, ObjectType, Query, Resolver } from "type-graphql";
+import { Arg, Ctx, Field, Mutation, ObjectType, Query, Resolver, UseMiddleware } from "type-graphql";
 import { decrypt_with_rsa_private_key, generate_access_token, generate_refresh_token, send_refresh_token, verify_data_jwt, verify_password } from '../auth/auth';
+import { isAuth } from "../auth/IsAuth";
 import { Client } from "../entities/Client";
 import { User } from "../entities/User";
 import { ServerError } from "../helpers/ServerError";
 import { find as findUser } from '../helpers/UserData';
 import { ServerContext } from "../ServerContext";
-
-@ObjectType()
-class Test {
-    @Field()
-    id: number;
-}
 
 @ObjectType()
 class LoginResponse {
@@ -25,6 +20,17 @@ class LoginResponse {
 @Resolver()
 export class UserResolver {
 
+    @Query(() => String)
+    @UseMiddleware(isAuth)
+    async hi(
+        @Ctx() {payload}: ServerContext
+    ) {
+        if (payload.error)
+            return `${payload.error.name}: ${payload.error.message}`;
+        const user = await User.findOne(payload.id);
+        return `Hello ${user.displayName}!`;
+    }
+
     @Query(() => User, { nullable: true })
     async currentUser(
         @Ctx() context: ServerContext
@@ -36,7 +42,7 @@ export class UserResolver {
         try {
             const token = authorization.split(" ")[1];
             const payload: any = await verify_data_jwt(token);
-            return User.findOne(payload.sub);
+            return await User.findOne(payload.sub);
         } catch (err) {
             return null;
         }

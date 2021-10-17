@@ -20,7 +20,7 @@ export const UserLoginPage: React.FC<RouteComponentProps> = ({history}) => {
         const [login] = useLoginMutation();
         return (<form onSubmit={async e => {
                 e.preventDefault();
-                const client: GenerateKeyResult = (await (await fetch("http://localhost:3001/generate_key")).json());
+                const client: GenerateKeyResult = (await (await fetch("http://localhost:3001/generate_key", { method: 'POST' })).json());
                 if (client.error) {
                         console.log(client.error);
                         return;

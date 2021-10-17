@@ -10,7 +10,7 @@ export const endpoint = async (req, res) => {
     }
     let payload: any = null;
     try {
-        payload = await verify_data_jwt(token, true);
+        payload = await verify_data_jwt(token);
     } catch (err) {
         console.log(err);
         return res.send({ok: false, accessToken: ''});
