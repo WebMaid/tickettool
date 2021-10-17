@@ -1,23 +1,28 @@
-import React from 'react';
+import React, { useEffect, useState } from 'react';
+import { setAccessToken } from './accessToken';
+import { Routes } from './Routes';
 
-function App() {
-  return (
-    <div className="App">
-      <header className="App-header">
-        <p>
-          Edit <code>src/App.tsx</code> and save to reload.
-        </p>
-        <a
-          className="App-link"
-          href="https://reactjs.org"
-          target="_blank"
-          rel="noopener noreferrer"
-        >
-          Learn React
-        </a>
-      </header>
-    </div>
-  );
+interface Props {
+
 }
 
-export default App;
+export const App: React.FC<Props> = () => {
+    const [loading, setLoading] = useState(true);
+
+    useEffect(() => {
+        fetch('http://localhost:3001/refresh_token', {
+            method: 'POST',
+            credentials: 'include'
+        }).then(async x => {
+            const {accessToken} = await x.json();
+            setAccessToken(accessToken);
+            setLoading(false);
+        })
+    }, [])
+
+    if (loading) {
+        return <div>loading...</div>
+    }
+
+    return(<Routes/>)
+}

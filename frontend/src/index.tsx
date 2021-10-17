@@ -1,17 +1,84 @@
 import React from 'react';
 import ReactDOM from 'react-dom';
-import './index.css';
-import App from './App';
-import reportWebVitals from './reportWebVitals';
+import "./index.css"
+import {
+  ApolloProvider,
+  ApolloClient,
+  InMemoryCache,
+  ApolloLink
+} from '@apollo/client';
+import { getAccessToken, setAccessToken } from './accessToken';
+import { App } from './App';
+//import {ApolloProvider} from '@apollo/react-hooks';
+// import reportWebVitals from './reportWebVitals';
+import { TokenRefreshLink } from 'apollo-link-token-refresh';
+import { HttpLink } from 'apollo-link-http';
+import { onError } from 'apollo-link-error';
+import jwtDecode from 'jwt-decode';
+
+const cache = new InMemoryCache();
+const requestLink = new ApolloLink((operation, forward) => {
+  const accessToken = getAccessToken();
+  if (accessToken) {
+    operation.setContext({
+      headers: {
+        authorization: accessToken ? `bearer ${accessToken}` : ""
+      }
+    });
+  }
+  return forward(operation);
+});
+const tokenRefreshLink: any = (new TokenRefreshLink({
+  accessTokenField: 'accessToken',
+  isTokenValidOrUndefined: () => {
+    const token = getAccessToken();
+    if (token === "")
+      return true;
+    try {
+      const {exp}: any = jwtDecode(token);
+      if (Date.now() >= exp * 1000) {
+        return false;
+      } else {
+        return true;
+      }
+    } catch {
+      return false;
+    }
+  },
+  fetchAccessToken: () => {
+    return fetch('http://localhost:3001/refresh_token', {
+      method: 'POST',
+      credentials: 'include'
+  })
+  },
+  handleFetch: accessToken => {
+    setAccessToken(accessToken);
+  },
+  handleError: err => {
+     console.warn('Your refresh token is invalid. Try to relogin');
+     console.error(err);
+  }
+}));
+
+const client = new ApolloClient({
+  link: ApolloLink.from([
+    tokenRefreshLink,
+    onError(({ graphQLErrors, networkError }) => {
+      console.log(graphQLErrors);
+      console.log(networkError);
+    }),
+    requestLink,
+    new HttpLink({
+      uri: 'http://localhost:3001/graphql',
+      credentials: 'include'
+    })
+  ]),
+  cache
+});
 
 ReactDOM.render(
-  <React.StrictMode>
+  <ApolloProvider client={client}>
     <App />
-  </React.StrictMode>,
+  </ApolloProvider>,
   document.getElementById('root')
 );
-
-// If you want to start measuring performance in your app, pass a function
-// to log results (for example: reportWebVitals(console.log))
-// or send to an analytics endpoint. Learn more: https://bit.ly/CRA-vitals
-reportWebVitals();
