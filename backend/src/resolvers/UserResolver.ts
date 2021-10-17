@@ -1,5 +1,5 @@
 import { Arg, Ctx, Field, Mutation, ObjectType, Query, Resolver } from "type-graphql";
-import { decrypt_with_rsa_private_key, generate_access_token, generate_refresh_token, send_refresh_token, verify_password } from '../auth/auth';
+import { decrypt_with_rsa_private_key, generate_access_token, generate_refresh_token, send_refresh_token, verify_data_jwt, verify_password } from '../auth/auth';
 import { Client } from "../entities/Client";
 import { User } from "../entities/User";
 import { ServerError } from "../helpers/ServerError";
@@ -24,6 +24,23 @@ class LoginResponse {
 
 @Resolver()
 export class UserResolver {
+
+    @Query(() => User, { nullable: true })
+    async currentUser(
+        @Ctx() context: ServerContext
+    ) {
+        const authorization = context.req.headers['authorization'];
+        if (!authorization) {
+            return null;
+        }
+        try {
+            const token = authorization.split(" ")[1];
+            const payload: any = await verify_data_jwt(token);
+            return User.findOne(payload.sub);
+        } catch (err) {
+            return null;
+        }
+    }
 
     @Mutation(() => LoginResponse)
     async login(
@@ -92,7 +109,10 @@ export class UserResolver {
     }
 
     @Query(() => Test, { nullable: true })
-    hi(): Test {
+    hi(
+        @Ctx() context: ServerContext
+    ): Test {
+        console.log(context);
         return { id: 1 };
     }
 }

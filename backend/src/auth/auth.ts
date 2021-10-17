@@ -99,7 +99,7 @@ const sign_data_jwt = async (data: AccessTokenData | RefreshTokenData, options: 
     });
 }
 
-const verify_data_jwt = async (token: string, refresh: boolean = false) => {
+export const verify_data_jwt = async (token: string, refresh: boolean = false) => {
     if (!token || !token.includes("."))
         throw new Error('invalid token');
     const body = token.split(".")[1];
