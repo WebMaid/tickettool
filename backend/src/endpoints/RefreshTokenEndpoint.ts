@@ -5,21 +5,21 @@ export const route = "/refresh_token";
 
 export const endpoint = async (req, res) => {
     const token = req.cookies.lid;
-    if (!token) {        
-        return res.send({ok: false, accessToken: ''})
+    if (!token) {
+        return res.send({ ok: false, accessToken: '' })
     }
     let payload: any = null;
     try {
         payload = await verify_data_jwt(token);
     } catch (err) {
         console.log(err);
-        return res.send({ok: false, accessToken: ''});
+        return res.send({ ok: false, accessToken: '' });
     }
     // token is valid
-    const user = await User.findOne({id: payload.id});
+    const user = await User.findOne({ id: payload.id });
     if (!user || user.jwt_version != payload.version) {
-        return res.send({ok: false, accessToken: ''});
+        return res.send({ ok: false, accessToken: '' });
     }
     await send_refresh_token(res, await generate_refresh_token(user));
-    return res.send({ok: true, accessToken: await generate_access_token(user)});
+    return res.send({ ok: true, accessToken: await generate_access_token(user) });
 }

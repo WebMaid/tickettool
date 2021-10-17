@@ -5,7 +5,7 @@ interface Props {
 }
 
 export const TicketTemplateCreatePage: React.FC<Props> = () => {
-        return(<div>
-            TicketTemplateCreatePage
-        </div>)
+    return (<div>
+        TicketTemplateCreatePage
+    </div>)
 }

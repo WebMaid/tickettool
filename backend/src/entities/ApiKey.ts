@@ -23,10 +23,12 @@ export class ApiKey extends BaseEntity {
     note: string;
 
     @Field()
-    @Column({type: 'varchar', length: 768, nullable: false, transformer: { // original 256
-        to: (value: string) => encrypt_access_key(value),
-        from: (value: string) => value
-    }})
+    @Column({
+        type: 'varchar', length: 768, nullable: false, transformer: { // original 256
+            to: (value: string) => encrypt_access_key(value),
+            from: (value: string) => value
+        }
+    })
     key: string;
 
     @Field(() => Date, { nullable: true })
@@ -55,10 +57,10 @@ export class ApiKey extends BaseEntity {
     owner: User;
 
     // scopes
-    
+
     public static async check(user_id: string, token: string): Promise<boolean> {
         try {
-            const keys = await ApiKey.find({where: {owner_id: user_id}});
+            const keys = await ApiKey.find({ where: { owner_id: user_id } });
             if (keys.length === 0) {
                 return false;
             }

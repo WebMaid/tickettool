@@ -1,7 +1,7 @@
 import React, { useState } from 'react';
 import { getUserId } from '../../../accessToken';
 import { ServerError } from '../../../generated/graphql';
-import { decrypt_with_rsa_private_key, generateRsaKeys } from '../../../helpers/auth';
+import { generateRsaKeys } from '../../../helpers/auth';
 const cryptico = require('cryptico-js');
 
 interface Props {
@@ -14,14 +14,14 @@ interface EncryptedKeyProps {
 }
 
 interface DecryptedKeyProps {
-    status: string, 
-    plaintext: string, 
+    status: string,
+    plaintext: string,
     signature: string
 }
 
 interface GenerateApiKeyResponse {
     api_key: EncryptedKeyProps,
-    error: ServerError|null
+    error: ServerError | null
 }
 
 export const UserSettingsDeveloperPage: React.FC<Props> = () => {
@@ -61,7 +61,7 @@ export const UserSettingsDeveloperPage: React.FC<Props> = () => {
         <ul>
             {apiKeys.map((ak) =>
                 <li>{ak}</li>
-              )}
+            )}
         </ul>
     </div>)
 }

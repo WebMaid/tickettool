@@ -10,8 +10,6 @@ import { SubscriptionServer } from 'subscriptions-transport-ws';
 import { buildSchema } from 'type-graphql';
 import { createConnection } from "typeorm";
 import { endpoints } from "./endpoints";
-import { Department } from './entities/Department';
-import { User } from './entities/User';
 import * as globals from './globals';
 import { resolvers } from './resolvers';
 import * as settings from "./settings";
@@ -20,7 +18,7 @@ import * as settings from "./settings";
   const app = express();
   app.use(settings.corsSettings());
   app.use(cookieParser());
-  app.use( express.json() );
+  app.use(express.json());
 
   app.post(
     endpoints.refreshToken.route,

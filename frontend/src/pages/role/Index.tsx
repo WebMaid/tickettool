@@ -5,7 +5,7 @@ interface Props {
 }
 
 export const RoleIndexPage: React.FC<Props> = () => {
-        return(<div>
-            <h1>Roles</h1>
-        </div>)
+    return (<div>
+        <h1>Roles</h1>
+    </div>)
 }

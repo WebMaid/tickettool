@@ -5,7 +5,7 @@ interface Props {
 }
 
 export const NotFoundPage: React.FC<Props> = () => {
-        return(<div>
-            Not Found: 404
-        </div>)
+    return (<div>
+        Not Found: 404
+    </div>)
 }

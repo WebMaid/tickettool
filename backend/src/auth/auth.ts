@@ -136,7 +136,7 @@ export const verify_data_jwt = async (token: string) => {
     if (!token || !token.includes("."))
         throw new Error('invalid token');
     const body = token.split(".")[1];
-    const data: ApiKeyData|AccessTokenData|RefreshTokenData = JSON.parse(Buffer.from(body, 'base64').toString('ascii'));
+    const data: ApiKeyData | AccessTokenData | RefreshTokenData = JSON.parse(Buffer.from(body, 'base64').toString('ascii'));
     if (!data)
         throw new Error('invalid token');
     return await User.findOne({ select: ["jwt_secret"], where: { id: data.id } }).then(async (user) => {
@@ -151,17 +151,17 @@ const generate_hashed_secret = (jwt_secret: string, type: JwtType): string => {
     switch (type) {
         case JwtType.ACCESS_TOKEN:
             return createHmac('sha512', process.env.REFRESH_TOKEN_SECRET!)
-            .update(jwt_secret)
-            .digest('base64');
+                .update(jwt_secret)
+                .digest('base64');
         case JwtType.REFRESH_TOKEN:
             return createHmac('sha512', process.env.ACCESS_TOKEN_SECRET!)
-            .update(jwt_secret)
-            .digest('base64');
+                .update(jwt_secret)
+                .digest('base64');
         case JwtType.API_KEY:
             return createHmac('sha512', process.env.API_KEY_SECRET!)
                 .update(jwt_secret)
                 .digest('base64');
-    }   
+    }
 }
 
 export const generate_access_token = async (user: User): Promise<string> => {

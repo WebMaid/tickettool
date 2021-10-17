@@ -113,7 +113,7 @@ export class User extends BaseEntity {
 
     @Field(() => UserSetting)
     @OneToOne(type => UserSetting, us => us.user)
-    @JoinColumn({name: 'settings_id'})
+    @JoinColumn({ name: 'settings_id' })
     settings: UserSetting;
 
     @Field(() => [Role])

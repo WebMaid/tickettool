@@ -5,7 +5,7 @@ interface Props {
 }
 
 export const ServiceIndexPage: React.FC<Props> = () => {
-        return(<div>
-            <h1>Services</h1>
-        </div>)
+    return (<div>
+        <h1>Services</h1>
+    </div>)
 }

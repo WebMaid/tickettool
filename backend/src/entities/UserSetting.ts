@@ -12,7 +12,7 @@ export class UserSetting extends BaseEntity {
     id: string;
 
     @Field(() => Boolean)
-    @Column({type: 'boolean', default: true})
+    @Column({ type: 'boolean', default: true })
     public_profile: boolean;
 
     @Field(() => String)

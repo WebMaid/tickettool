@@ -1,18 +1,15 @@
+import {
+  ApolloClient, ApolloLink, ApolloProvider, InMemoryCache
+} from '@apollo/client';
+import { onError } from 'apollo-link-error';
+import { HttpLink } from 'apollo-link-http';
+import { TokenRefreshLink } from 'apollo-link-token-refresh';
+import jwtDecode from 'jwt-decode';
 import React from 'react';
 import ReactDOM from 'react-dom';
-import "./index.css"
-import {
-  ApolloProvider,
-  ApolloClient,
-  InMemoryCache,
-  ApolloLink
-} from '@apollo/client';
 import { getAccessToken, setAccessToken } from './accessToken';
 import { App } from './App';
-import { TokenRefreshLink } from 'apollo-link-token-refresh';
-import { HttpLink } from 'apollo-link-http';
-import { onError } from 'apollo-link-error';
-import jwtDecode from 'jwt-decode';
+import "./index.css";
 
 const cache = new InMemoryCache();
 const requestLink = new ApolloLink((operation, forward) => {
@@ -33,7 +30,7 @@ const tokenRefreshLink: any = (new TokenRefreshLink({
     if (token === "")
       return true;
     try {
-      const {exp}: any = jwtDecode(token);
+      const { exp }: any = jwtDecode(token);
       if (Date.now() >= exp * 1000) {
         return false;
       } else {
@@ -47,7 +44,7 @@ const tokenRefreshLink: any = (new TokenRefreshLink({
     return fetch('http://localhost:3001/refresh_token', {
       method: 'POST',
       credentials: 'include'
-  })
+    })
   },
   handleFetch: accessToken => {
     setAccessToken(accessToken);

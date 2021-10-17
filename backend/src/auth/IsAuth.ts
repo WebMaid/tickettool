@@ -4,10 +4,10 @@ import { ServerContext } from "../ServerContext";
 import { JwtType, verify_data_jwt } from "./auth";
 
 
-export const isAuth: MiddlewareFn<ServerContext> = async ({context}, next) => {
+export const isAuth: MiddlewareFn<ServerContext> = async ({ context }, next) => {
     const authorization = context.req.headers['authorization'];
     if (!authorization) {
-        context.payload = { 
+        context.payload = {
             id: null,
             error: {
                 name: "Not authenticated",
@@ -21,7 +21,7 @@ export const isAuth: MiddlewareFn<ServerContext> = async ({context}, next) => {
         const payload: any = await verify_data_jwt(token);
         if (payload.type == JwtType.API_KEY) {
             if (!await ApiKey.check(payload.id, token)) {
-                context.payload = { 
+                context.payload = {
                     id: null,
                     error: {
                         name: "Invalid Api-Key",
@@ -34,7 +34,7 @@ export const isAuth: MiddlewareFn<ServerContext> = async ({context}, next) => {
         context.payload = { id: payload.id };
     } catch (err) {
         // console.log(err);
-        context.payload = { 
+        context.payload = {
             id: null,
             error: {
                 name: "Invalid Key",

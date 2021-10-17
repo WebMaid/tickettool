@@ -14,7 +14,7 @@ export const App: React.FC<Props> = () => {
             method: 'POST',
             credentials: 'include'
         }).then(async x => {
-            const {accessToken} = await x.json();
+            const { accessToken } = await x.json();
             setAccessToken(accessToken);
             setLoading(false);
         })
@@ -24,5 +24,5 @@ export const App: React.FC<Props> = () => {
         return <div>loading...</div>
     }
 
-    return(<Routes/>)
+    return (<Routes />)
 }

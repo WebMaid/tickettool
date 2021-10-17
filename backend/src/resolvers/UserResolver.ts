@@ -23,7 +23,7 @@ export class UserResolver {
     @Query(() => String)
     @UseMiddleware(isAuth)
     async hi(
-        @Ctx() {payload}: ServerContext
+        @Ctx() { payload }: ServerContext
     ) {
         if (payload.error)
             return `${payload.error.name}: ${payload.error.message}`;
