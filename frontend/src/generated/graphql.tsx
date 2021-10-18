@@ -1,10 +1,10 @@
-import * as Apollo from '@apollo/client';
 import { gql } from '@apollo/client';
+import * as Apollo from '@apollo/client';
 export type Maybe<T> = T | null;
 export type Exact<T extends { [key: string]: unknown }> = { [K in keyof T]: T[K] };
 export type MakeOptional<T, K extends keyof T> = Omit<T, K> & { [SubKey in K]?: Maybe<T[SubKey]> };
 export type MakeMaybe<T, K extends keyof T> = Omit<T, K> & { [SubKey in K]: Maybe<T[SubKey]> };
-const defaultOptions = {}
+const defaultOptions =  {}
 /** All built-in and custom scalars, mapped to their actual values */
 export type Scalars = {
   ID: string;
@@ -14,6 +14,27 @@ export type Scalars = {
   Float: number;
   /** The javascript `Date` as string. Type represents date and time as the ISO Date string. */
   DateTime: any;
+};
+
+export type ApiKey = {
+  __typename?: 'ApiKey';
+  created_at: Scalars['DateTime'];
+  expires?: Maybe<Scalars['DateTime']>;
+  id: Scalars['String'];
+  key: Scalars['String'];
+  last_use?: Maybe<Scalars['DateTime']>;
+  note: Scalars['String'];
+  owner?: Maybe<User>;
+  owner_id: Scalars['ID'];
+  scopes: Array<ApiScope>;
+  updated_at: Scalars['DateTime'];
+};
+
+export type ApiScope = {
+  __typename?: 'ApiScope';
+  entity: Scalars['String'];
+  id: Scalars['String'];
+  type: Scalars['String'];
 };
 
 export type Department = {
@@ -27,6 +48,13 @@ export type Department = {
   template_responsibilities: Array<TicketTemplate>;
   ticket_responsibilities: Array<Ticket>;
   users: Array<User>;
+};
+
+export type GetKeysResponse = {
+  __typename?: 'GetKeysResponse';
+  errors?: Maybe<Array<ServerError>>;
+  keys?: Maybe<Array<ApiKey>>;
+  validation_errors?: Maybe<Array<ValidationError>>;
 };
 
 export type LoginResponse = {
@@ -88,7 +116,13 @@ export type Permission = {
 export type Query = {
   __typename?: 'Query';
   currentUser?: Maybe<User>;
-  hi?: Maybe<Test>;
+  getKeysOfUser: GetKeysResponse;
+  hi: Scalars['String'];
+};
+
+
+export type QueryGetKeysOfUserArgs = {
+  user_id: Scalars['String'];
 };
 
 export type Role = {
@@ -145,11 +179,6 @@ export type Subscription = {
 
 export type SubscriptionTicketUpdatedArgs = {
   id: Scalars['String'];
-};
-
-export type Test = {
-  __typename?: 'Test';
-  id: Scalars['Float'];
 };
 
 export type Ticket = {
@@ -257,6 +286,7 @@ export type TicketUpdateResponse = {
 
 export type User = {
   __typename?: 'User';
+  api_keys?: Maybe<Array<ApiKey>>;
   department: Department;
   department_id: Scalars['String'];
   displayName: Scalars['String'];
@@ -267,10 +297,24 @@ export type User = {
   permissions: Array<Permission>;
   phoneNumber: Scalars['String'];
   roles: Array<Role>;
+  settings: UserSetting;
+  settings_id: Scalars['String'];
   template_responsibilities: Array<TicketTemplate>;
   ticket_comment_responsibilities: Array<TicketComment>;
   ticket_responsibilities: Array<Ticket>;
   username: Scalars['String'];
+};
+
+export type UserSetting = {
+  __typename?: 'UserSetting';
+  day_theme: Scalars['String'];
+  id: Scalars['String'];
+  night_theme: Scalars['String'];
+  notification_assign_ticket: Array<Scalars['String']>;
+  notification_assigned_ticket_change: Array<Scalars['String']>;
+  notification_watching_ticket_change: Array<Scalars['String']>;
+  public_profile: Scalars['Boolean'];
+  user: User;
 };
 
 export type ValidationError = {
@@ -284,6 +328,13 @@ export type CurrentUserQueryVariables = Exact<{ [key: string]: never; }>;
 
 
 export type CurrentUserQuery = { __typename?: 'Query', currentUser?: { __typename?: 'User', id: string, username: string, displayName: string, mail: string } | null | undefined };
+
+export type GetKeysOfUserQueryVariables = Exact<{
+  userId: Scalars['String'];
+}>;
+
+
+export type GetKeysOfUserQuery = { __typename?: 'Query', getKeysOfUser: { __typename?: 'GetKeysResponse', keys?: Array<{ __typename?: 'ApiKey', id: string, note: string, expires?: any | null | undefined, last_use?: any | null | undefined, scopes: Array<{ __typename?: 'ApiScope', id: string, entity: string, type: string }> }> | null | undefined } };
 
 export type LoginMutationVariables = Exact<{
   password: Scalars['String'];
@@ -322,16 +373,61 @@ export const CurrentUserDocument = gql`
  * });
  */
 export function useCurrentUserQuery(baseOptions?: Apollo.QueryHookOptions<CurrentUserQuery, CurrentUserQueryVariables>) {
-  const options = { ...defaultOptions, ...baseOptions }
-  return Apollo.useQuery<CurrentUserQuery, CurrentUserQueryVariables>(CurrentUserDocument, options);
-}
+        const options = {...defaultOptions, ...baseOptions}
+        return Apollo.useQuery<CurrentUserQuery, CurrentUserQueryVariables>(CurrentUserDocument, options);
+      }
 export function useCurrentUserLazyQuery(baseOptions?: Apollo.LazyQueryHookOptions<CurrentUserQuery, CurrentUserQueryVariables>) {
-  const options = { ...defaultOptions, ...baseOptions }
-  return Apollo.useLazyQuery<CurrentUserQuery, CurrentUserQueryVariables>(CurrentUserDocument, options);
-}
+          const options = {...defaultOptions, ...baseOptions}
+          return Apollo.useLazyQuery<CurrentUserQuery, CurrentUserQueryVariables>(CurrentUserDocument, options);
+        }
 export type CurrentUserQueryHookResult = ReturnType<typeof useCurrentUserQuery>;
 export type CurrentUserLazyQueryHookResult = ReturnType<typeof useCurrentUserLazyQuery>;
 export type CurrentUserQueryResult = Apollo.QueryResult<CurrentUserQuery, CurrentUserQueryVariables>;
+export const GetKeysOfUserDocument = gql`
+    query getKeysOfUser($userId: String!) {
+  getKeysOfUser(user_id: $userId) {
+    keys {
+      id
+      note
+      scopes {
+        id
+        entity
+        type
+      }
+      expires
+      last_use
+    }
+  }
+}
+    `;
+
+/**
+ * __useGetKeysOfUserQuery__
+ *
+ * To run a query within a React component, call `useGetKeysOfUserQuery` and pass it any options that fit your needs.
+ * When your component renders, `useGetKeysOfUserQuery` returns an object from Apollo Client that contains loading, error, and data properties
+ * you can use to render your UI.
+ *
+ * @param baseOptions options that will be passed into the query, supported options are listed on: https://www.apollographql.com/docs/react/api/react-hooks/#options;
+ *
+ * @example
+ * const { data, loading, error } = useGetKeysOfUserQuery({
+ *   variables: {
+ *      userId: // value for 'userId'
+ *   },
+ * });
+ */
+export function useGetKeysOfUserQuery(baseOptions: Apollo.QueryHookOptions<GetKeysOfUserQuery, GetKeysOfUserQueryVariables>) {
+        const options = {...defaultOptions, ...baseOptions}
+        return Apollo.useQuery<GetKeysOfUserQuery, GetKeysOfUserQueryVariables>(GetKeysOfUserDocument, options);
+      }
+export function useGetKeysOfUserLazyQuery(baseOptions?: Apollo.LazyQueryHookOptions<GetKeysOfUserQuery, GetKeysOfUserQueryVariables>) {
+          const options = {...defaultOptions, ...baseOptions}
+          return Apollo.useLazyQuery<GetKeysOfUserQuery, GetKeysOfUserQueryVariables>(GetKeysOfUserDocument, options);
+        }
+export type GetKeysOfUserQueryHookResult = ReturnType<typeof useGetKeysOfUserQuery>;
+export type GetKeysOfUserLazyQueryHookResult = ReturnType<typeof useGetKeysOfUserLazyQuery>;
+export type GetKeysOfUserQueryResult = Apollo.QueryResult<GetKeysOfUserQuery, GetKeysOfUserQueryVariables>;
 export const LoginDocument = gql`
     mutation Login($password: String!, $mail: String!, $clientId: String!) {
   login(password: $password, mail: $mail, client_id: $clientId) {
@@ -371,9 +467,9 @@ export type LoginMutationFn = Apollo.MutationFunction<LoginMutation, LoginMutati
  * });
  */
 export function useLoginMutation(baseOptions?: Apollo.MutationHookOptions<LoginMutation, LoginMutationVariables>) {
-  const options = { ...defaultOptions, ...baseOptions }
-  return Apollo.useMutation<LoginMutation, LoginMutationVariables>(LoginDocument, options);
-}
+        const options = {...defaultOptions, ...baseOptions}
+        return Apollo.useMutation<LoginMutation, LoginMutationVariables>(LoginDocument, options);
+      }
 export type LoginMutationHookResult = ReturnType<typeof useLoginMutation>;
 export type LoginMutationResult = Apollo.MutationResult<LoginMutation>;
 export type LoginMutationOptions = Apollo.BaseMutationOptions<LoginMutation, LoginMutationVariables>;

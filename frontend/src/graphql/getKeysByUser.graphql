@@ -1,0 +1,15 @@
+query getKeysOfUser($userId: String!) {
+  getKeysOfUser(user_id: $userId) {
+    keys {
+      id
+      note
+      scopes {
+        id
+        entity
+        type
+      }
+      expires
+      last_use
+    }
+  }
+}

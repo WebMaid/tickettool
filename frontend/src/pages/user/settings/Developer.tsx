@@ -1,6 +1,6 @@
 import React, { useState } from 'react';
 import { getUserId } from '../../../accessToken';
-import { ServerError } from '../../../generated/graphql';
+import { ApiKey, ServerError, useGetKeysOfUserQuery } from '../../../generated/graphql';
 import { ICrypticoEncryptedKey } from '../../../helpers/cryptico/ICrypticoEncryptedKey';
 import { Cryptico } from '../../../helpers/cryptico/Cryptico';
 import { settings } from '../../../Settings';
@@ -9,14 +9,35 @@ interface Props {
 
 }
 
+// TODO: Change backend, that this gets responded!
 interface GenerateApiKeyResponse {
-    api_key: ICrypticoEncryptedKey,
+    api_key: LocalApiKey,
+    secret: ICrypticoEncryptedKey,
     error: ServerError | null
 }
 
+interface LocalApiScope {
+    id: string;
+    entity: string;
+    type: string;
+}
+
+interface LocalApiKey {
+    id: string;
+    note: string;
+    scopes: LocalApiScope[],
+    expires?: Date,
+    last_use?: Date
+}
+
 export const UserSettingsDeveloperPage: React.FC<Props> = () => {
-    const db_keys: string[] = []
+    const {data, loading} = useGetKeysOfUserQuery({variables: {userId: getUserId()}});
+    const db_keys: LocalApiKey[] = []
     const [apiKeys, setApiKeys] = useState(db_keys);
+
+    if (data?.getKeysOfUser?.keys) {
+        setApiKeys(data.getKeysOfUser.keys);
+    }
 
     const createNewApiKey = async (note: string): Promise<void> => {
         const keys = new Cryptico();
@@ -37,7 +58,8 @@ export const UserSettingsDeveloperPage: React.FC<Props> = () => {
                 })
             })).json();
             if (!response.error) {
-                setApiKeys([...apiKeys, `${note}: ${keys.decrypt(response.api_key)}`]);
+                // `${note}: ${keys.decrypt(response.api_key)}`
+                setApiKeys([...apiKeys, response.api_key]);
             }
         } catch (err) {
             console.log(err);
