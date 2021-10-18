@@ -13,6 +13,7 @@ export class Jwt {
         const data: ApiKeyData | AccessTokenData | RefreshTokenData = JSON.parse(Buffer.from(body, 'base64').toString('ascii'));
         if (!data)
             throw new Error('invalid token');
+        console.log(`The following error occurs cause of the selectment of just the jwt_secret:`)
         return await User.findOne({ select: ["jwt_secret"], where: { id: data.id } }).then(async (user) => {
             if (!user)
                 throw new Error('invalid token');
@@ -23,6 +24,7 @@ export class Jwt {
 
     static async sign_data(data: AccessTokenData | RefreshTokenData | ApiKeyData, options: SignOptions = {}, type: JwtTypeEnum = JwtTypeEnum.ACCESS_TOKEN): Promise<string> {
         const id = data.id;
+        console.log(`The following error occurs cause of the selectment of just the jwt_secret:`)
         return User.findOne({ select: ["jwt_secret"], where: { id: id } }).then(user => {
             if (!user)
                 return undefined;
