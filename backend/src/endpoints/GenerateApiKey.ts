@@ -1,8 +1,8 @@
 import { Request, Response } from "express";
+import { Rsa } from "../auth/rsa/Rsa";
 import { ApiKey } from "../entities/ApiKey";
 import { User } from "../entities/User";
 import { ServerError } from "../helpers/ServerError";
-const cryptico = require('cryptico-js');
 
 export const route = "/generate_api_key";
 
@@ -28,7 +28,7 @@ export const endpoint = async (req: Request, res: Response) => {
             const key = await ApiKey.generate(u.id);
             await ApiKey.insert(new ApiKey(key, u.id))
             data = {
-                api_key: cryptico.encrypt(key, req.body.public_key),
+                api_key: Rsa.encrypt(key, req.body.public_key),
                 error: null
             }
         } catch (err) {

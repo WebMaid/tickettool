@@ -1,7 +1,8 @@
 import { MiddlewareFn } from "type-graphql";
 import { ApiKey } from "../entities/ApiKey";
 import { ServerContext } from "../ServerContext";
-import { JwtType, verify_data_jwt } from "./auth";
+import { Jwt } from "./jwt/Jwt";
+import { JwtTypeEnum } from "./jwt/JwtTypeEnum";
 
 
 export const isAuth: MiddlewareFn<ServerContext> = async ({ context }, next) => {
@@ -18,8 +19,8 @@ export const isAuth: MiddlewareFn<ServerContext> = async ({ context }, next) => 
     }
     try {
         const token = authorization.split(" ")[1];
-        const payload: any = await verify_data_jwt(token);
-        if (payload.type == JwtType.API_KEY) {
+        const payload: any = await Jwt.verify_data(token);
+        if (payload.type == JwtTypeEnum.API_KEY) {
             if (!await ApiKey.check(payload.id, token)) {
                 context.payload = {
                     id: null,

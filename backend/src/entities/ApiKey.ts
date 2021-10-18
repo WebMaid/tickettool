@@ -1,6 +1,7 @@
 import { Field, ID, ObjectType } from "type-graphql";
 import { BaseEntity, Column, CreateDateColumn, Entity, JoinColumn, ManyToOne, PrimaryGeneratedColumn, UpdateDateColumn } from "typeorm";
-import { decrypt_access_key, encrypt_access_key, generate_api_key, generate_random_secret, hash_password } from "../auth/auth";
+import { decrypt_access_key, encrypt_access_key, generate_random_secret, hash_password } from "../auth/auth";
+import { Jwt } from "../auth/jwt/Jwt";
 import { User } from "./User";
 
 @ObjectType()
@@ -77,6 +78,6 @@ export class ApiKey extends BaseEntity {
 
     public static async generate(user_id) {
         const secret = generate_random_secret(128);
-        return await generate_api_key(user_id, hash_password(secret));
+        return await Jwt.generate_api_key(user_id, hash_password(secret));
     }
 }

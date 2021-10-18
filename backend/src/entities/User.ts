@@ -1,7 +1,8 @@
 import { randomBytes } from "crypto";
 import { Field, ObjectType } from "type-graphql";
 import { AfterInsert, AfterLoad, AfterUpdate, BaseEntity, BeforeInsert, BeforeRemove, BeforeUpdate, Column, Entity, JoinColumn, JoinTable, ManyToMany, ManyToOne, OneToMany, OneToOne, PrimaryGeneratedColumn } from "typeorm";
-import { decrypt_personalized_data, decrypt_personalized_key, encrypt_personalized_data, encrypt_personalized_key, generate_random_secret, hash_password } from "../auth/auth";
+import { generate_random_secret, hash_password } from "../auth/auth";
+import { PersonalizedEncryption } from "../auth/encryption/PersonalizedEncryption";
 import * as helper from '../helpers/UserData';
 import { ApiKey } from "./ApiKey";
 import { Department } from "./Department";
@@ -39,7 +40,7 @@ export class User extends BaseEntity {
     @Field()
     @Column({
         type: 'varchar', length: 96, nullable: true, transformer: {  // original 32
-            to: (value: string) => encrypt_personalized_data(value.toLowerCase(), key),
+            to: (value: string) => PersonalizedEncryption.encrypt_data(value.toLowerCase(), key),
             from: (value: string) => value
         }
     })
@@ -48,7 +49,7 @@ export class User extends BaseEntity {
     @Field()
     @Column({
         type: 'varchar', length: 192, nullable: true, transformer: {  // original 64
-            to: (value: string) => encrypt_personalized_data(value, key),
+            to: (value: string) => PersonalizedEncryption.encrypt_data(value, key),
             from: (value: string) => value
         }
     })
@@ -57,7 +58,7 @@ export class User extends BaseEntity {
     @Field()
     @Column({
         type: 'varchar', length: 192, nullable: false, unique: true, transformer: { // original 64
-            to: (value: string) => encrypt_personalized_data(value.toLowerCase(), key),
+            to: (value: string) => PersonalizedEncryption.encrypt_data(value.toLowerCase(), key),
             from: (value: string) => value
         }
     })
@@ -65,7 +66,7 @@ export class User extends BaseEntity {
 
     @Column({
         type: 'varchar', length: 768, nullable: false, transformer: { // original 256
-            to: (value: string) => encrypt_personalized_data(value, key),
+            to: (value: string) => PersonalizedEncryption.encrypt_data(value, key),
             from: (value: string) => value
         }
     })
@@ -74,7 +75,7 @@ export class User extends BaseEntity {
     @Field()
     @Column({
         type: 'varchar', length: 48, nullable: true, unique: true, transformer: { // original 16
-            to: (value: string) => encrypt_personalized_data(value, key),
+            to: (value: string) => PersonalizedEncryption.encrypt_data(value, key),
             from: (value: string) => value
         }
     })
@@ -82,7 +83,7 @@ export class User extends BaseEntity {
 
     @Column({
         type: 'varchar', length: 384, nullable: true, transformer: { // original 128
-            to: (value: string) => encrypt_personalized_data(value, key),
+            to: (value: string) => PersonalizedEncryption.encrypt_data(value, key),
             from: (value: string) => value
         }
     })
@@ -90,7 +91,7 @@ export class User extends BaseEntity {
 
     @Column({
         type: 'varchar', length: 384, nullable: false, transformer: { // original 128
-            to: (value: string) => encrypt_personalized_data(value, key),
+            to: (value: string) => PersonalizedEncryption.encrypt_data(value, key),
             from: (value: string) => value
         }
     })
@@ -101,8 +102,8 @@ export class User extends BaseEntity {
 
     @Column({
         type: 'varchar', length: 32, nullable: false, transformer: {
-            to: (value: string) => encrypt_personalized_key(value),
-            from: (value: string) => decrypt_personalized_key(value)
+            to: (value: string) => PersonalizedEncryption.encrypt_key(value),
+            from: (value: string) => PersonalizedEncryption.decrypt_key(value)
         }
     })
     personalized_secret: string;
@@ -166,7 +167,7 @@ export class User extends BaseEntity {
 
     @BeforeInsert()
     private generatePersonalizedSecret() {
-        this.personalized_secret = randomBytes(8).toString('hex');
+        this.personalized_secret = PersonalizedEncryption.encrypt_key(randomBytes(8).toString('hex'));
     }
 
     @BeforeInsert()
@@ -179,7 +180,7 @@ export class User extends BaseEntity {
     @BeforeInsert()
     @BeforeUpdate()
     private define_key_insert_update() {
-        key = this.personalized_secret;
+        key = PersonalizedEncryption.decrypt_key(this.personalized_secret);
     }
 
     @AfterInsert()
@@ -202,10 +203,10 @@ export class User extends BaseEntity {
      */
     @AfterLoad()
     private decrypt_data() {
-        key = this.personalized_secret;
-        this.username = decrypt_personalized_data(this.username, key);
-        this.displayName = decrypt_personalized_data(this.displayName, key);
-        this.mail = decrypt_personalized_data(this.mail, key);
-        this.phoneNumber = decrypt_personalized_data(this.phoneNumber, key);
+        key = PersonalizedEncryption.decrypt_key(this.personalized_secret);
+        this.username = PersonalizedEncryption.decrypt_data(this.username, key);
+        this.displayName = PersonalizedEncryption.decrypt_data(this.displayName, key);
+        this.mail = PersonalizedEncryption.decrypt_data(this.mail, key);
+        this.phoneNumber = PersonalizedEncryption.decrypt_data(this.phoneNumber, key);
     }
 }

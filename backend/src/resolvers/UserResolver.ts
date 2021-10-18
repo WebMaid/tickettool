@@ -1,6 +1,8 @@
 import { Arg, Ctx, Field, Mutation, ObjectType, Query, Resolver, UseMiddleware } from "type-graphql";
-import { decrypt_with_rsa_private_key, generate_access_token, generate_refresh_token, send_refresh_token, verify_data_jwt, verify_password } from '../auth/auth';
+import { verify_password } from '../auth/auth';
 import { isAuth } from "../auth/IsAuth";
+import { Jwt } from "../auth/jwt/Jwt";
+import { Rsa } from "../auth/rsa/Rsa";
 import { Client } from "../entities/Client";
 import { User } from "../entities/User";
 import { ServerError } from "../helpers/ServerError";
@@ -41,7 +43,7 @@ export class UserResolver {
         }
         try {
             const token = authorization.split(" ")[1];
-            const payload: any = await verify_data_jwt(token);
+            const payload: any = await Jwt.verify_data(token);
             return await User.findOne(payload.sub);
         } catch (err) {
             return null;
@@ -90,7 +92,7 @@ export class UserResolver {
             }
         }
         client.remove();
-        const valid = verify_password(decrypt_with_rsa_private_key(password, client.private_key), user.password, user.personalized_secret);
+        const valid = verify_password(Rsa.decrypt(password, client.private_key), user.password, user.personalized_secret);
         if (!valid) {
             return {
                 accessToken: null,
@@ -104,10 +106,10 @@ export class UserResolver {
 
         // login successful
 
-        await send_refresh_token(res, await generate_refresh_token(user));
+        await Jwt.send_refresh_token(res, await Jwt.generate_refresh_token(user));
 
         return {
-            accessToken: await generate_access_token(user),
+            accessToken: await Jwt.generate_access_token(user),
             user: user,
             error: null
         }
