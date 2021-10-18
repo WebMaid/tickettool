@@ -101,7 +101,7 @@ export class User extends BaseEntity {
     jwt_version: number;
 
     @Column({
-        type: 'varchar', length: 32, nullable: false, transformer: {
+        type: 'varchar', length: 128, nullable: false, transformer: {
             to: (value: string) => PersonalizedEncryption.encrypt_key(value),
             from: (value: string) => PersonalizedEncryption.decrypt_key(value)
         }

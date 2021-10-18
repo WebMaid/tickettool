@@ -18,7 +18,10 @@ export const decrypt_private_key = (hash: string): string => {
 }
 
 export const verify_password = (to_check: string, original: string, decrypt_key: string): boolean => {
-    return hash_password(to_check) == PersonalizedEncryption.decrypt_data(original, decrypt_key);
+    if (!decrypt_key) {
+        return false;
+    }
+    return hash_password(to_check) == PersonalizedEncryption.decrypt_data(original, PersonalizedEncryption.decrypt_key(decrypt_key));
 }
 
 export const hash_password = (password: string): string => {

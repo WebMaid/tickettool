@@ -16,7 +16,6 @@ export abstract class PersonalizedEncryption {
             return null;
         const decipher = createDecipheriv(this.algorithm, process.env.PERSONALIZED_DATA_HASH_KEY, key);
         return Buffer.concat([decipher.update(Buffer.from(hash, 'hex')), decipher.final()]).toString();
-
     }
 
     static encrypt_key(key: string): string {
