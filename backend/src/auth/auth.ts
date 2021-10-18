@@ -1,9 +1,5 @@
 import * as crypto from 'crypto';
 import { createHmac } from 'crypto';
-import { Response } from 'express';
-import { sign, SignOptions, verify } from 'jsonwebtoken';
-import { Field, ObjectType } from 'type-graphql';
-import { User } from '../entities/User';
 import { PersonalizedEncryption } from './encryption/PersonalizedEncryption';
 
 const ENCRYPTION_ALGORITHM = 'aes-256-ctr';
@@ -11,19 +7,9 @@ const PASSWORD_HASH_ALGORITHM = "sha512"
 
 export const SECRET_CHARS = "0123456789abcdefghijklmnopqrstuvwxyz!@#$%^&*()[]{}/+-_:.;,£àÀÉéÈè°ç\"<>`?'´=¬|¢~ABCDEFGHIJKLMNOPQRSTUVWXYZ";
 
-export const encrypt_access_key = (key: string): string => {
-    const cipher = crypto.createCipheriv(ENCRYPTION_ALGORITHM, process.env.API_ACCESSTOKEN_HASH_KEY, process.env.API_ACCESSTOKEN_CRYPTO_KEY)
-    return Buffer.concat([cipher.update(key), cipher.final()]).toString('hex');
-}
-
 export const encrypt_private_key = (key: string): string => {
     const cipher = crypto.createCipheriv(ENCRYPTION_ALGORITHM, process.env.PRIVATE_KEY_HASH_KEY, process.env.PRIVATE_KEY_CRYPTO_KEY)
     return Buffer.concat([cipher.update(key), cipher.final()]).toString('hex');
-}
-
-export const decrypt_access_key = (hash: string): string => {
-    const decipher = crypto.createDecipheriv(ENCRYPTION_ALGORITHM, process.env.API_ACCESSTOKEN_HASH_KEY, process.env.API_ACCESSTOKEN_CRYPTO_KEY);
-    return Buffer.concat([decipher.update(Buffer.from(hash, 'hex')), decipher.final()]).toString();
 }
 
 export const decrypt_private_key = (hash: string): string => {

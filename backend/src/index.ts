@@ -10,6 +10,8 @@ import { SubscriptionServer } from 'subscriptions-transport-ws';
 import { buildSchema } from 'type-graphql';
 import { createConnection } from "typeorm";
 import { endpoints } from "./endpoints";
+import { Department } from './entities/Department';
+import { User } from './entities/User';
 import * as globals from './globals';
 import { resolvers } from './resolvers';
 import * as settings from "./settings";

@@ -19,14 +19,14 @@ export const endpoint = async (req: Request, res: Response) => {
             message: "Something at the server side went wrong!"
         }
     }
-    if (req?.body?.public_key && req.body.user) {
+    if (req?.body?.public_key && req.body.user && req.body.note) {
         try {
             const u = await User.findOne(req.body.user);
             if (!u) {
                 return res.send(data);
             }
             const key = await ApiKey.generate(u.id);
-            await ApiKey.insert(new ApiKey(key, u.id))
+            await ApiKey.insert(new ApiKey(req.body.note, key, u.id))
             data = {
                 api_key: Rsa.encrypt(key, req.body.public_key),
                 error: null

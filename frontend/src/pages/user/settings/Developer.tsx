@@ -18,7 +18,7 @@ export const UserSettingsDeveloperPage: React.FC<Props> = () => {
     const db_keys: string[] = []
     const [apiKeys, setApiKeys] = useState(db_keys);
 
-    const createNewApiKey = async (): Promise<void> => {
+    const createNewApiKey = async (note: string): Promise<void> => {
         const keys = new Cryptico();
         if (keys.error) {
             return;
@@ -32,11 +32,12 @@ export const UserSettingsDeveloperPage: React.FC<Props> = () => {
                 }),
                 body: JSON.stringify({
                     user: getUserId(),
-                    public_key: keys.public_key
+                    public_key: keys.public_key,
+                    note: note
                 })
             })).json();
             if (!response.error) {
-                setApiKeys([...apiKeys, keys.decrypt(response.api_key)]);
+                setApiKeys([...apiKeys, `${note}: ${keys.decrypt(response.api_key)}`]);
             }
         } catch (err) {
             console.log(err);
@@ -47,7 +48,7 @@ export const UserSettingsDeveloperPage: React.FC<Props> = () => {
         UserSettingsDevelopperPage
         <button onClick={async e => {
             e.preventDefault();
-            await createNewApiKey();
+            await createNewApiKey("Note to this key");
         }}>Create Key</button>
         <ul>
             {apiKeys.map((ak) =>

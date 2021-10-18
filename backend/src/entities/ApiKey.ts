@@ -1,17 +1,19 @@
 import { Field, ID, ObjectType } from "type-graphql";
-import { BaseEntity, Column, CreateDateColumn, Entity, JoinColumn, ManyToOne, PrimaryGeneratedColumn, UpdateDateColumn } from "typeorm";
-import { decrypt_access_key, encrypt_access_key, generate_random_secret, hash_password } from "../auth/auth";
+import { BaseEntity, Column, CreateDateColumn, Entity, JoinColumn, JoinTable, ManyToMany, ManyToOne, PrimaryGeneratedColumn, UpdateDateColumn } from "typeorm";
+import { ApiKeyAuth } from "../auth/api/ApiKey";
+import { generate_random_secret } from "../auth/auth";
 import { Jwt } from "../auth/jwt/Jwt";
+import { ApiScope } from "./ApiScope";
 import { User } from "./User";
 
 @ObjectType()
 @Entity()
 export class ApiKey extends BaseEntity {
 
-    constructor(key, owner_id) {
+    constructor(note, key, owner_id) {
         super();
-        this.note = "test";
-        this.key = hash_password(key);
+        this.note = note;
+        this.key = ApiKeyAuth.hash_api_key(key);
         this.owner_id = owner_id
     }
 
@@ -26,7 +28,7 @@ export class ApiKey extends BaseEntity {
     @Field()
     @Column({
         type: 'varchar', length: 768, nullable: false, transformer: { // original 256
-            to: (value: string) => encrypt_access_key(value),
+            to: (value: string) => ApiKeyAuth.encrypt_api_key(value),
             from: (value: string) => value
         }
     })
@@ -57,7 +59,10 @@ export class ApiKey extends BaseEntity {
     @JoinColumn({ name: 'owner_id' })
     owner: User;
 
-    // scopes
+    @Field(() => [ApiScope])
+    @ManyToMany(type => ApiScope, as => as.keys)
+    @JoinTable({ name: 'api_key_scope', inverseJoinColumn: { name: 'key_id', referencedColumnName: 'id' }, joinColumn: { name: 'scope_id', referencedColumnName: 'id' } })
+    scopes: ApiScope[];
 
     public static async check(user_id: string, token: string): Promise<boolean> {
         try {
@@ -66,7 +71,7 @@ export class ApiKey extends BaseEntity {
                 return false;
             }
             for (let i = 0; i < keys.length; i++) {
-                if (decrypt_access_key(keys[i].key) == hash_password(token)) {
+                if (ApiKeyAuth.decrypt_api_key(keys[i].key) == ApiKeyAuth.hash_api_key(token)) {
                     return true;
                 }
             }
@@ -78,6 +83,6 @@ export class ApiKey extends BaseEntity {
 
     public static async generate(user_id) {
         const secret = generate_random_secret(128);
-        return await Jwt.generate_api_key(user_id, hash_password(secret));
+        return await Jwt.generate_api_key(user_id, ApiKeyAuth.hash_api_key(secret));
     }
 }
