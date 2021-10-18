@@ -209,4 +209,8 @@ export class User extends BaseEntity {
         this.mail = PersonalizedEncryption.decrypt_data(this.mail, key);
         this.phoneNumber = PersonalizedEncryption.decrypt_data(this.phoneNumber, key);
     }
+
+    static async exists(id: string): Promise<boolean> {
+        return (await User.findOne(id)) != null;
+    }
 }
