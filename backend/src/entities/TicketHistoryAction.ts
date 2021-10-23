@@ -2,7 +2,6 @@ import { Field, ID, ObjectType } from "type-graphql";
 import { BaseEntity, Column, Entity, JoinColumn, ManyToOne, PrimaryGeneratedColumn } from "typeorm";
 import { TicketHistoryActionEnum } from "../enums/TicketHistoryActionEnum";
 import { TicketHistory } from "./TicketHistory";
-
 @ObjectType()
 @Entity()
 export class TicketHistoryAction extends BaseEntity {

@@ -1,13 +1,17 @@
-import { privateDecrypt, publicEncrypt } from "crypto";
-
+import { privateDecrypt } from "crypto";
 const cryptico = require('cryptico-js')
 
+export interface ICrypticoEncryptedKey {
+    status: string,
+    cipher: string
+}
+
 export class Rsa {
-    static encrypt(value: string, public_key: string): string {
+    static encrypt(value: string, public_key: string): ICrypticoEncryptedKey {
         return cryptico.encrypt(value, public_key);
     };
-    
-    static decrypt (hash: string, private_key: string): string {
+
+    static decrypt(hash: string, private_key: string): string {
         try {
             var buffer = Buffer.from(hash, "base64");
             var decrypted = privateDecrypt({

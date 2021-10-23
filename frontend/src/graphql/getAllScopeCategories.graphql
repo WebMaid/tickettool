@@ -1,0 +1,18 @@
+query getAllScopeCategories {
+  getAllScopeCategories {
+    categories {
+      id
+      name
+      description
+      scopes {
+        id
+        name
+        description
+      }
+    }
+    error {
+      name
+      message
+    }
+  }
+}

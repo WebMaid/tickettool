@@ -4,7 +4,6 @@ import { Department } from "./Department";
 import { Ticket } from "./Ticket";
 import { TicketHistoryAction } from "./TicketHistoryAction";
 import { User } from "./User";
-
 @ObjectType()
 @Entity()
 export class TicketHistory extends BaseEntity {

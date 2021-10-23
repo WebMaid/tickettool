@@ -3,7 +3,6 @@ import { BaseEntity, Column, CreateDateColumn, Entity, JoinColumn, ManyToOne, Pr
 import { Service } from "./Service";
 import { ServiceHistoryAction } from "./ServiceHistoryAction";
 import { User } from "./User";
-
 @ObjectType()
 @Entity()
 export class ServiceHistory extends BaseEntity {

@@ -20,21 +20,55 @@ export type ApiKey = {
   __typename?: 'ApiKey';
   created_at: Scalars['DateTime'];
   expires?: Maybe<Scalars['DateTime']>;
-  id: Scalars['String'];
+  id: Scalars['ID'];
   key: Scalars['String'];
   last_use?: Maybe<Scalars['DateTime']>;
   note: Scalars['String'];
   owner?: Maybe<User>;
   owner_id: Scalars['ID'];
-  scopes: Array<ApiScope>;
+  scopes?: Maybe<Array<ApiScope>>;
   updated_at: Scalars['DateTime'];
 };
 
 export type ApiScope = {
   __typename?: 'ApiScope';
-  entity: Scalars['String'];
+  category?: Maybe<Array<ApiScopeCategory>>;
+  category_id?: Maybe<Scalars['ID']>;
+  description: Scalars['String'];
+  id: Scalars['ID'];
+  name: Scalars['String'];
+};
+
+export type ApiScopeCategory = {
+  __typename?: 'ApiScopeCategory';
+  description: Scalars['String'];
   id: Scalars['String'];
-  type: Scalars['String'];
+  name: Scalars['String'];
+  scopes: Array<ApiScope>;
+};
+
+export type ApiScopeInput = {
+  id: Scalars['ID'];
+};
+
+export type CreateKeyResponse = {
+  __typename?: 'CreateKeyResponse';
+  api_key?: Maybe<ApiKey>;
+  error?: Maybe<ServerError>;
+  secret?: Maybe<CrypticoEncryptedKey>;
+  validation_errors?: Maybe<Array<ValidationError>>;
+};
+
+export type CrypticoEncryptedKey = {
+  __typename?: 'CrypticoEncryptedKey';
+  cipher: Scalars['String'];
+  status: Scalars['String'];
+};
+
+export type DeleteKeyResponse = {
+  __typename?: 'DeleteKeyResponse';
+  error?: Maybe<ServerError>;
+  success?: Maybe<Scalars['Boolean']>;
 };
 
 export type Department = {
@@ -48,6 +82,12 @@ export type Department = {
   template_responsibilities: Array<TicketTemplate>;
   ticket_responsibilities: Array<Ticket>;
   users: Array<User>;
+};
+
+export type GetCategoriesResponse = {
+  __typename?: 'GetCategoriesResponse';
+  categories?: Maybe<Array<ApiScopeCategory>>;
+  error?: Maybe<ServerError>;
 };
 
 export type GetKeysResponse = {
@@ -66,9 +106,19 @@ export type LoginResponse = {
 
 export type Mutation = {
   __typename?: 'Mutation';
+  createApiKey: CreateKeyResponse;
   createTicket: TicketCreateResponse;
+  deleteApiKey: DeleteKeyResponse;
   login: LoginResponse;
   updateTicket: TicketUpdateResponse;
+};
+
+
+export type MutationCreateApiKeyArgs = {
+  expires_in: Scalars['String'];
+  note: Scalars['String'];
+  public_key: Scalars['String'];
+  scopes: Array<ApiScopeInput>;
 };
 
 
@@ -82,6 +132,11 @@ export type MutationCreateTicketArgs = {
   service_id: Scalars['String'];
   short_description: Scalars['String'];
   type: Scalars['String'];
+};
+
+
+export type MutationDeleteApiKeyArgs = {
+  id: Scalars['String'];
 };
 
 
@@ -116,6 +171,7 @@ export type Permission = {
 export type Query = {
   __typename?: 'Query';
   currentUser?: Maybe<User>;
+  getAllScopeCategories: GetCategoriesResponse;
   getKeysOfUser: GetKeysResponse;
   hi: Scalars['String'];
 };
@@ -324,17 +380,39 @@ export type ValidationError = {
   message: Scalars['String'];
 };
 
+export type CreateApiKeyMutationVariables = Exact<{
+  scopes: Array<ApiScopeInput> | ApiScopeInput;
+  publicKey: Scalars['String'];
+  expiresIn: Scalars['String'];
+  note: Scalars['String'];
+}>;
+
+
+export type CreateApiKeyMutation = { __typename?: 'Mutation', createApiKey: { __typename?: 'CreateKeyResponse', secret?: { __typename?: 'CrypticoEncryptedKey', cipher: string, status: string } | null | undefined, error?: { __typename?: 'ServerError', name: string, message: string } | null | undefined, validation_errors?: Array<{ __typename?: 'ValidationError', field: string, message: string }> | null | undefined } };
+
 export type CurrentUserQueryVariables = Exact<{ [key: string]: never; }>;
 
 
 export type CurrentUserQuery = { __typename?: 'Query', currentUser?: { __typename?: 'User', id: string, username: string, displayName: string, mail: string } | null | undefined };
+
+export type DeleteApiKeyMutationVariables = Exact<{
+  deleteApiKeyId: Scalars['String'];
+}>;
+
+
+export type DeleteApiKeyMutation = { __typename?: 'Mutation', deleteApiKey: { __typename?: 'DeleteKeyResponse', success?: boolean | null | undefined, error?: { __typename?: 'ServerError', name: string, message: string } | null | undefined } };
+
+export type GetAllScopeCategoriesQueryVariables = Exact<{ [key: string]: never; }>;
+
+
+export type GetAllScopeCategoriesQuery = { __typename?: 'Query', getAllScopeCategories: { __typename?: 'GetCategoriesResponse', categories?: Array<{ __typename?: 'ApiScopeCategory', id: string, name: string, description: string, scopes: Array<{ __typename?: 'ApiScope', id: string, name: string, description: string }> }> | null | undefined, error?: { __typename?: 'ServerError', name: string, message: string } | null | undefined } };
 
 export type GetKeysOfUserQueryVariables = Exact<{
   userId: Scalars['String'];
 }>;
 
 
-export type GetKeysOfUserQuery = { __typename?: 'Query', getKeysOfUser: { __typename?: 'GetKeysResponse', keys?: Array<{ __typename?: 'ApiKey', id: string, note: string, expires?: any | null | undefined, last_use?: any | null | undefined, scopes: Array<{ __typename?: 'ApiScope', id: string, entity: string, type: string }> }> | null | undefined } };
+export type GetKeysOfUserQuery = { __typename?: 'Query', getKeysOfUser: { __typename?: 'GetKeysResponse', keys?: Array<{ __typename?: 'ApiKey', id: string, note: string, expires?: any | null | undefined, last_use?: any | null | undefined, scopes?: Array<{ __typename?: 'ApiScope', id: string, name: string }> | null | undefined }> | null | undefined } };
 
 export type LoginMutationVariables = Exact<{
   password: Scalars['String'];
@@ -346,6 +424,58 @@ export type LoginMutationVariables = Exact<{
 export type LoginMutation = { __typename?: 'Mutation', login: { __typename?: 'LoginResponse', accessToken?: string | null | undefined, user?: { __typename?: 'User', id: string, username: string, displayName: string, mail: string } | null | undefined, error?: { __typename?: 'ServerError', name: string, message: string } | null | undefined } };
 
 
+export const CreateApiKeyDocument = gql`
+    mutation createApiKey($scopes: [ApiScopeInput!]!, $publicKey: String!, $expiresIn: String!, $note: String!) {
+  createApiKey(
+    public_key: $publicKey
+    expires_in: $expiresIn
+    note: $note
+    scopes: $scopes
+  ) {
+    secret {
+      cipher
+      status
+    }
+    error {
+      name
+      message
+    }
+    validation_errors {
+      field
+      message
+    }
+  }
+}
+    `;
+export type CreateApiKeyMutationFn = Apollo.MutationFunction<CreateApiKeyMutation, CreateApiKeyMutationVariables>;
+
+/**
+ * __useCreateApiKeyMutation__
+ *
+ * To run a mutation, you first call `useCreateApiKeyMutation` within a React component and pass it any options that fit your needs.
+ * When your component renders, `useCreateApiKeyMutation` returns a tuple that includes:
+ * - A mutate function that you can call at any time to execute the mutation
+ * - An object with fields that represent the current status of the mutation's execution
+ *
+ * @param baseOptions options that will be passed into the mutation, supported options are listed on: https://www.apollographql.com/docs/react/api/react-hooks/#options-2;
+ *
+ * @example
+ * const [createApiKeyMutation, { data, loading, error }] = useCreateApiKeyMutation({
+ *   variables: {
+ *      scopes: // value for 'scopes'
+ *      publicKey: // value for 'publicKey'
+ *      expiresIn: // value for 'expiresIn'
+ *      note: // value for 'note'
+ *   },
+ * });
+ */
+export function useCreateApiKeyMutation(baseOptions?: Apollo.MutationHookOptions<CreateApiKeyMutation, CreateApiKeyMutationVariables>) {
+        const options = {...defaultOptions, ...baseOptions}
+        return Apollo.useMutation<CreateApiKeyMutation, CreateApiKeyMutationVariables>(CreateApiKeyDocument, options);
+      }
+export type CreateApiKeyMutationHookResult = ReturnType<typeof useCreateApiKeyMutation>;
+export type CreateApiKeyMutationResult = Apollo.MutationResult<CreateApiKeyMutation>;
+export type CreateApiKeyMutationOptions = Apollo.BaseMutationOptions<CreateApiKeyMutation, CreateApiKeyMutationVariables>;
 export const CurrentUserDocument = gql`
     query CurrentUser {
   currentUser {
@@ -383,6 +513,90 @@ export function useCurrentUserLazyQuery(baseOptions?: Apollo.LazyQueryHookOption
 export type CurrentUserQueryHookResult = ReturnType<typeof useCurrentUserQuery>;
 export type CurrentUserLazyQueryHookResult = ReturnType<typeof useCurrentUserLazyQuery>;
 export type CurrentUserQueryResult = Apollo.QueryResult<CurrentUserQuery, CurrentUserQueryVariables>;
+export const DeleteApiKeyDocument = gql`
+    mutation deleteApiKey($deleteApiKeyId: String!) {
+  deleteApiKey(id: $deleteApiKeyId) {
+    success
+    error {
+      name
+      message
+    }
+  }
+}
+    `;
+export type DeleteApiKeyMutationFn = Apollo.MutationFunction<DeleteApiKeyMutation, DeleteApiKeyMutationVariables>;
+
+/**
+ * __useDeleteApiKeyMutation__
+ *
+ * To run a mutation, you first call `useDeleteApiKeyMutation` within a React component and pass it any options that fit your needs.
+ * When your component renders, `useDeleteApiKeyMutation` returns a tuple that includes:
+ * - A mutate function that you can call at any time to execute the mutation
+ * - An object with fields that represent the current status of the mutation's execution
+ *
+ * @param baseOptions options that will be passed into the mutation, supported options are listed on: https://www.apollographql.com/docs/react/api/react-hooks/#options-2;
+ *
+ * @example
+ * const [deleteApiKeyMutation, { data, loading, error }] = useDeleteApiKeyMutation({
+ *   variables: {
+ *      deleteApiKeyId: // value for 'deleteApiKeyId'
+ *   },
+ * });
+ */
+export function useDeleteApiKeyMutation(baseOptions?: Apollo.MutationHookOptions<DeleteApiKeyMutation, DeleteApiKeyMutationVariables>) {
+        const options = {...defaultOptions, ...baseOptions}
+        return Apollo.useMutation<DeleteApiKeyMutation, DeleteApiKeyMutationVariables>(DeleteApiKeyDocument, options);
+      }
+export type DeleteApiKeyMutationHookResult = ReturnType<typeof useDeleteApiKeyMutation>;
+export type DeleteApiKeyMutationResult = Apollo.MutationResult<DeleteApiKeyMutation>;
+export type DeleteApiKeyMutationOptions = Apollo.BaseMutationOptions<DeleteApiKeyMutation, DeleteApiKeyMutationVariables>;
+export const GetAllScopeCategoriesDocument = gql`
+    query getAllScopeCategories {
+  getAllScopeCategories {
+    categories {
+      id
+      name
+      description
+      scopes {
+        id
+        name
+        description
+      }
+    }
+    error {
+      name
+      message
+    }
+  }
+}
+    `;
+
+/**
+ * __useGetAllScopeCategoriesQuery__
+ *
+ * To run a query within a React component, call `useGetAllScopeCategoriesQuery` and pass it any options that fit your needs.
+ * When your component renders, `useGetAllScopeCategoriesQuery` returns an object from Apollo Client that contains loading, error, and data properties
+ * you can use to render your UI.
+ *
+ * @param baseOptions options that will be passed into the query, supported options are listed on: https://www.apollographql.com/docs/react/api/react-hooks/#options;
+ *
+ * @example
+ * const { data, loading, error } = useGetAllScopeCategoriesQuery({
+ *   variables: {
+ *   },
+ * });
+ */
+export function useGetAllScopeCategoriesQuery(baseOptions?: Apollo.QueryHookOptions<GetAllScopeCategoriesQuery, GetAllScopeCategoriesQueryVariables>) {
+        const options = {...defaultOptions, ...baseOptions}
+        return Apollo.useQuery<GetAllScopeCategoriesQuery, GetAllScopeCategoriesQueryVariables>(GetAllScopeCategoriesDocument, options);
+      }
+export function useGetAllScopeCategoriesLazyQuery(baseOptions?: Apollo.LazyQueryHookOptions<GetAllScopeCategoriesQuery, GetAllScopeCategoriesQueryVariables>) {
+          const options = {...defaultOptions, ...baseOptions}
+          return Apollo.useLazyQuery<GetAllScopeCategoriesQuery, GetAllScopeCategoriesQueryVariables>(GetAllScopeCategoriesDocument, options);
+        }
+export type GetAllScopeCategoriesQueryHookResult = ReturnType<typeof useGetAllScopeCategoriesQuery>;
+export type GetAllScopeCategoriesLazyQueryHookResult = ReturnType<typeof useGetAllScopeCategoriesLazyQuery>;
+export type GetAllScopeCategoriesQueryResult = Apollo.QueryResult<GetAllScopeCategoriesQuery, GetAllScopeCategoriesQueryVariables>;
 export const GetKeysOfUserDocument = gql`
     query getKeysOfUser($userId: String!) {
   getKeysOfUser(user_id: $userId) {
@@ -391,8 +605,7 @@ export const GetKeysOfUserDocument = gql`
       note
       scopes {
         id
-        entity
-        type
+        name
       }
       expires
       last_use

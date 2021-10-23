@@ -13,7 +13,6 @@ import { TicketHistoryAction } from "./TicketHistoryAction";
 import { User } from "./User";
 
 let last_ticket = null;
-
 @ObjectType()
 @Entity()
 export class Ticket extends BaseEntity {

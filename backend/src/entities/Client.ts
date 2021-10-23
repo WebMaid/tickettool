@@ -15,7 +15,7 @@ class ClientKeyParams {
   @Field()
   error: ServerError;
 }
-
+@ObjectType()
 @Entity()
 export class Client extends BaseEntity {
 

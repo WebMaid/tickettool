@@ -1,0 +1,9 @@
+mutation deleteApiKey($deleteApiKeyId: String!) {
+  deleteApiKey(id: $deleteApiKeyId) {
+    success
+    error {
+      name
+      message
+    }
+  }
+}

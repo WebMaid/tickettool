@@ -60,8 +60,8 @@ export class Jwt {
         return await this.sign_data({ id: user.id, version: user.jwt_version }, { expiresIn: "7d" }, JwtTypeEnum.REFRESH_TOKEN)
     }
     
-    static async generate_api_key(user_id: string, secret: string): Promise<string> {
-        return await this.sign_data({ id: user_id, secret: secret }, { expiresIn: "99y" }, JwtTypeEnum.API_KEY)
+    static async generate_api_key(user_id: string, secret: string, expires_in: string): Promise<string> {
+        return await this.sign_data({ id: user_id, secret: secret }, { expiresIn: expires_in }, JwtTypeEnum.API_KEY)
     }
     
     static send_refresh_token = (res: Response, token: string): void => {

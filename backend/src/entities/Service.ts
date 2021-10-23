@@ -3,7 +3,6 @@ import { BaseEntity, BeforeInsert, Column, Entity, OneToMany, PrimaryGeneratedCo
 import { add_service_count, service_count } from "../globals";
 import { ServiceHistory } from "./ServiceHistory";
 import { Ticket } from "./Ticket";
-
 @ObjectType()
 @Entity()
 export class Service extends BaseEntity {

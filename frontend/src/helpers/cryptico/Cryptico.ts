@@ -21,8 +21,8 @@ export class Cryptico implements ICryptico {
     private_key: string;
     error: string | null = null;
 
-    decrypt(value: ICrypticoEncryptedKey): string {
-        if (value.status !== "success")
+    decrypt(value?: ICrypticoEncryptedKey|null): string {
+        if (value?.status !== "success")
             return "";
         const decrypted: ICrypticoDecryptedKey = cryptico.decrypt(value.cipher, this.private_key);
         if (decrypted.status === "success")

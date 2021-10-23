@@ -1,5 +1,6 @@
 import React, { useEffect, useState } from 'react';
 import { setAccessToken } from './accessToken';
+import { changeThemeTo } from './helpers/ThemeHelper';
 import { Routes } from './Routes';
 
 interface Props {
@@ -8,7 +9,6 @@ interface Props {
 
 export const App: React.FC<Props> = () => {
     const [loading, setLoading] = useState(true);
-
     useEffect(() => {
         fetch('http://localhost:3001/refresh_token', {
             method: 'POST',
@@ -17,8 +17,10 @@ export const App: React.FC<Props> = () => {
             const { accessToken } = await x.json();
             setAccessToken(accessToken);
             setLoading(false);
-        })
-    }, [])
+        });
+    }, []);
+
+    changeThemeTo("dark")
 
     if (loading) {
         return <div>loading...</div>

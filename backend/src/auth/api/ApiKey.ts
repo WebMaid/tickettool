@@ -5,10 +5,16 @@ export class ApiKeyAuth {
     static hash_algoritm = 'sha512'
 
     static decrypt_api_key(hash: string): string {
+        if (!hash) {
+            return null;
+        }
         const decipher = createDecipheriv(this.algoritm, process.env.API_ACCESSTOKEN_HASH_KEY, process.env.API_ACCESSTOKEN_CRYPTO_KEY);
     return Buffer.concat([decipher.update(Buffer.from(hash, 'hex')), decipher.final()]).toString();
     }
     static encrypt_api_key(key: string): string {
+        if (!key) {
+            return null;
+        }
         const cipher = createCipheriv(this.algoritm, process.env.API_ACCESSTOKEN_HASH_KEY, process.env.API_ACCESSTOKEN_CRYPTO_KEY)
         return Buffer.concat([cipher.update(key), cipher.final()]).toString('hex');
     }

@@ -1,0 +1,30 @@
+:root {
+    --success-color: rgb(91, 220, 0); 
+    --info-color: rgb(0, 89, 255); 
+    --warning-color: rgb(255, 183, 0); 
+    --error-color: rgb(235, 35, 0);
+  }
+  
+  body[data-theme='light'] {
+    
+  }
+  
+  body[data-theme='light-colorblind'] {
+    
+  }
+  
+  body[data-theme='dark'] {
+    
+  }
+  
+  body[data-theme='dimmed-dark'] {
+    
+  }
+  
+  body[data-theme='dark-high-contrast'] {
+    
+  }
+  
+  body[data-theme='dark-colorblind'] {
+    
+  }

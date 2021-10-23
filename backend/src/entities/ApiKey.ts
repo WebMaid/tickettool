@@ -3,18 +3,20 @@ import { BaseEntity, Column, CreateDateColumn, Entity, JoinColumn, JoinTable, Ma
 import { ApiKeyAuth } from "../auth/api/ApiKey";
 import { generate_random_secret } from "../auth/auth";
 import { Jwt } from "../auth/jwt/Jwt";
+import { ApiScopeInput } from "../input-types/ApiScopeInput";
 import { ApiScope } from "./ApiScope";
 import { User } from "./User";
-
 @ObjectType()
 @Entity()
 export class ApiKey extends BaseEntity {
 
-    constructor(note, key, owner_id) {
+    constructor(note: string, expire_date: Date, key: string, owner_id: string, scopes?: ApiScope[]) {
         super();
         this.note = note;
         this.key = ApiKeyAuth.hash_api_key(key);
-        this.owner_id = owner_id
+        this.expires = expire_date;
+        this.owner_id = owner_id;
+        this.scopes = scopes ?? null;
     }
 
     @Field()
@@ -59,7 +61,7 @@ export class ApiKey extends BaseEntity {
     @JoinColumn({ name: 'owner_id' })
     owner: User;
 
-    @Field(() => [ApiScope])
+    @Field(() => [ApiScope], {nullable: true, defaultValue: null})
     @ManyToMany(type => ApiScope, as => as.keys)
     @JoinTable({ name: 'api_key_scope', inverseJoinColumn: { name: 'key_id', referencedColumnName: 'id' }, joinColumn: { name: 'scope_id', referencedColumnName: 'id' } })
     scopes: ApiScope[];
@@ -81,8 +83,12 @@ export class ApiKey extends BaseEntity {
         }
     }
 
-    public static async generate(user_id) {
+    public static async generate(user_id, expires_in) {
         const secret = generate_random_secret(128);
-        return await Jwt.generate_api_key(user_id, ApiKeyAuth.hash_api_key(secret));
+        return await Jwt.generate_api_key(user_id, ApiKeyAuth.hash_api_key(secret), expires_in);
+    }
+
+    static async exists(id: string): Promise<boolean> {
+        return (await ApiKey.findOne(id)) != null;
     }
 }

@@ -5,8 +5,7 @@ query getKeysOfUser($userId: String!) {
       note
       scopes {
         id
-        entity
-        type
+        name
       }
       expires
       last_use

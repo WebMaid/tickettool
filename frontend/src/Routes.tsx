@@ -2,7 +2,7 @@ import React from 'react';
 import { BrowserRouter, Route, Switch } from 'react-router-dom';
 import { useCurrentUserQuery } from './generated/graphql';
 import ProtectedRoute, { ProtectedRouteProps } from './helpers/ProtectedRoute';
-import { DepartmentIndexPage, HomePage, NotFoundPage, RoleIndexPage, ServiceCreatePage, ServiceDetailPage, ServiceIndexPage, SettingIndexPage, TicketCreatePage, TicketDetailPage, TicketIndexPage, TicketTemplateCreatePage, TicketTemplateDetailPage, TicketTemplateIndexPage, UserCreatePage, UserDetailPage, UserLoginPage, UserSettingIndexPage, UserSettingsDeveloperPage } from './pages';
+import { DepartmentIndexPage, HomePage, NotFoundPage, RoleIndexPage, ServiceCreatePage, ServiceDetailPage, ServiceIndexPage, SettingIndexPage, TicketCreatePage, TicketDetailPage, TicketIndexPage, TicketTemplateCreatePage, TicketTemplateDetailPage, TicketTemplateIndexPage, UserCreatePage, UserDetailPage, UserLoginPage, UserSettingIndexPage, UserSettingTokenIndexPage, UserSettingTokenCreatePage, UserSettingTokenDetailPage } from './pages';
 
 export const Routes: React.FC = () => {
   const { data, loading } = useCurrentUserQuery()
@@ -25,7 +25,10 @@ export const Routes: React.FC = () => {
         <Route exact path="/profile/:username" component={UserDetailPage} />
 
         <ProtectedRoute {...defaultProtectedRouteProps} exact path="/user/settings" component={UserSettingIndexPage} />
-        <ProtectedRoute {...defaultProtectedRouteProps} exact path="/user/settings/development" component={UserSettingsDeveloperPage} />
+
+        <ProtectedRoute {...defaultProtectedRouteProps} exact path="/user/settings/tokens" component={UserSettingTokenIndexPage} />
+        <ProtectedRoute {...defaultProtectedRouteProps} exact path="/user/settings/token/create" component={UserSettingTokenCreatePage} />
+        <ProtectedRoute {...defaultProtectedRouteProps} exact path="/user/settings/token/:id" component={UserSettingTokenDetailPage} />
 
         <ProtectedRoute {...defaultProtectedRouteProps} exact path="/settings" component={SettingIndexPage} />
         <ProtectedRoute {...defaultProtectedRouteProps} exact path="/departments" component={DepartmentIndexPage} />

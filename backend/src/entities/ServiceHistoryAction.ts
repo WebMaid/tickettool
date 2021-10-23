@@ -2,7 +2,6 @@ import { Field, ID, ObjectType } from "type-graphql";
 import { BaseEntity, Column, Entity, OneToMany, PrimaryGeneratedColumn } from "typeorm";
 import { ServiceHistoryActionEnum } from "../enums/ServiceHistoryActionEnum";
 import { ServiceHistory } from "./ServiceHistory";
-
 @ObjectType()
 @Entity()
 export class ServiceHistoryAction extends BaseEntity {

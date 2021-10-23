@@ -1,0 +1,16 @@
+mutation createApiKey($scopes: [ApiScopeInput!]!, $publicKey: String!, $expiresIn: String!, $note: String!) {
+  createApiKey(public_key: $publicKey, expires_in: $expiresIn, note: $note, scopes: $scopes) {
+    secret {
+      cipher
+      status
+    }
+    error {
+      name
+      message
+    }
+    validation_errors {
+      field
+      message
+    }
+  }
+}

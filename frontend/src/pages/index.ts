@@ -16,8 +16,10 @@ import { TicketTemplateIndexPage } from './ticket/template/Index';
 import { UserCreatePage } from './user/Create';
 import { UserDetailPage } from './user/Detail';
 import { UserLoginPage } from './user/Login';
-import { UserSettingsDeveloperPage } from './user/settings/Developer';
 import { UserSettingIndexPage } from './user/settings/Index';
+import { UserSettingTokenIndexPage } from './user/settings/token/Index';
+import { UserSettingTokenCreatePage } from './user/settings/token/Create';
+import { UserSettingTokenDetailPage } from './user/settings/token/Detail';
 
 
 export {
@@ -40,5 +42,7 @@ export {
     UserDetailPage,
     UserLoginPage,
     UserSettingIndexPage,
-    UserSettingsDeveloperPage,
+    UserSettingTokenIndexPage,
+    UserSettingTokenCreatePage,
+    UserSettingTokenDetailPage
 };

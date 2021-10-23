@@ -1,4 +1,4 @@
-export enum TicketTemplateInputType {
+export enum TicketTemplate {
     TEXT = "text",
     NUMBER = "number",
     FILE = "file",
