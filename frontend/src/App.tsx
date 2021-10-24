@@ -20,7 +20,7 @@ export const App: React.FC<Props> = () => {
         });
     }, []);
 
-    changeThemeTo("dark")
+    changeThemeTo("dark-dimmed");
 
     if (loading) {
         return <div>loading...</div>
