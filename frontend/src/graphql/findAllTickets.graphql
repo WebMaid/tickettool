@@ -1,0 +1,37 @@
+query findAllTickets($count: Float!) {
+  findAllTickets(count: $count) {
+    tickets {
+      id
+      ticket_id
+      short_description
+      type
+      status
+      responsible_user {
+        id
+        username
+        displayName
+      }
+      responsible_department {
+        name
+      }
+      issuer {
+        id
+        username
+        displayName
+      }
+      issuer_department {
+        name
+      }
+      service {
+        id
+        name
+      }
+      group {
+        id
+      }
+      created_at
+      updated_at
+      closed_at
+    }
+  }
+}

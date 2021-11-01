@@ -1,0 +1,34 @@
+subscription NewTicketCreated {
+  ticketCreated {
+    id
+    ticket_id
+    short_description
+    description
+    type
+    status
+    responsible_user {
+      id
+      displayName
+    }
+    responsible_department {
+      name
+    }
+    issuer {
+      id
+      displayName
+    }
+    issuer_department {
+      name
+    }
+    service {
+      id
+      service_id
+      name
+    }
+    group {
+      id
+    }
+    created_at
+    updated_at
+  }
+}

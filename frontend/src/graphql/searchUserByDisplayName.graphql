@@ -1,0 +1,8 @@
+query searchUserByDisplayName($search: String!, $department: String) {
+  searchUser(search: $search, department: $department) {
+    displayName
+    department {
+      name
+    }
+  }
+}

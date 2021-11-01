@@ -1,0 +1,44 @@
+mutation createTicket(
+  $service: String!
+  $issuerDepartment: String!
+  $type: String!
+  $description: String!
+  $shortDescription: String!
+  $issuer: String
+  $groupId: String
+) {
+  createTicket(
+    service: $service
+    issuer_department: $issuerDepartment
+    type: $type
+    description: $description
+    short_description: $shortDescription
+    issuer: $issuer
+    group_id: $groupId
+  ) {
+    validation_errors {
+      field
+      message
+    }
+    errors {
+      name
+      message
+    }
+    ticket {
+      id
+      ticket_id
+      short_description
+      description
+      type
+      status
+      issuer_id
+      responsible_department_id
+      responsible_user_id
+      issuer_department_id
+      service_id
+      group_id
+      created_at
+      updated_at
+    }
+  }
+}

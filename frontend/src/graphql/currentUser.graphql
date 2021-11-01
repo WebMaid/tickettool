@@ -1,8 +1,12 @@
 query CurrentUser {
-    currentUser {
-        id,
-        username,
-        displayName,
-        mail
+  currentUser {
+    id
+    username
+    displayName
+    mail
+    department {
+      id
+      name
     }
+  }
 }

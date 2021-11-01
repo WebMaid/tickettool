@@ -9,10 +9,13 @@
     "apollo-link-token-refresh": "^0.3.2",
     "cryptico-js": "^1.1.0",
     "graphql": "^15.6.1",
+    "i18next": "^21.3.3",
+    "i18next-xhr-backend": "^3.2.2",
     "jwt-decode": "^3.1.2",
     "react": "^17.0.2",
     "react-dom": "^17.0.2",
     "react-hook-form": "^7.17.4",
+    "react-i18next": "^11.13.0",
     "react-router-dom": "^5.3.0",
     "react-scripts": "4.0.3",
     "web-vitals": "^1.0.1"

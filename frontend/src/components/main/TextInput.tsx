@@ -1,23 +1,61 @@
+import { ReactElement, useState } from "react";
 import { FieldValues, UseFormRegister } from "react-hook-form";
+import { InputSizeEnum } from "../../objects/InputSizeEnum";
 
 interface Props {
-    register: UseFormRegister<FieldValues>;
-    name: string;
-    validation?: any;
-    changeUseState?: [string, React.Dispatch<React.SetStateAction<string>>];
-    error?: any;
+  register: UseFormRegister<FieldValues>;
+  name: string;
+  label: string;
+  placeholder?: string;
+  disabled?: boolean;
+  validation?: any;
+  changeUseState?: [string, React.Dispatch<React.SetStateAction<string>>];
+  error?: any;
+  size?: InputSizeEnum;
+  readonly?: boolean;
 }
 
-export const TextInput: React.FC<Props> = ({register, name, validation, error, changeUseState, ...additional_params}) => {
-    if (changeUseState) {
-        const [value, setValue] = changeUseState;
-        return (
-            <input className={`form-control${error ? " invalid" : ""}`} type="text" {...register(name, validation)} value={value} onChange={e => setValue(e.target.value)} {...additional_params} />
-        );
-    }
+export const TextInput: React.FC<Props> = ({
+  register,
+  name,
+  label,
+  placeholder,
+  disabled,
+  validation,
+  changeUseState,
+  error,
+  size,
+  readonly,
+}) => {
+  if (!changeUseState) {
     return (
-        <input className={`form-control${error ? " invalid" : ""}`} type="text" {...register(name, validation)} {...additional_params} />
+      <div className={`form-group col-md-${size ?? 6}`}>
+        <label htmlFor={`inp-${name}`}>{label}</label>
+        <input
+          type="text"
+          className="form-control"
+          id={`inp-${name}`}
+          {...register(name, validation ?? {})}
+          placeholder={placeholder}
+          readOnly={readonly ?? false}
+        />
+      </div>
     );
-
-    
-}
+  }
+  const [state, setState] = changeUseState;
+  return (
+    <div className={`form-group col-md-${size ?? 6}`}>
+      <label htmlFor={`inp-${name}`}>{label}</label>
+      <input
+        type="text"
+        className="form-control"
+        id={`inp-${name}`}
+        {...register(name, validation ?? {})}
+        placeholder={placeholder}
+        readOnly={readonly ?? false}
+        value={state}
+        onChange={(e) => setState(e.target.value)}
+      />
+    </div>
+  );
+};

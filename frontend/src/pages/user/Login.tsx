@@ -1,63 +1,83 @@
-import React, { useState } from 'react';
-import { RouteComponentProps } from 'react-router-dom';
-import { setAccessToken } from '../../accessToken';
-import { CurrentUserDocument, CurrentUserQuery, useLoginMutation } from '../../generated/graphql';
-import { encrypt_with_rsa_public_key } from '../../helpers/auth';
+import React, { useState } from "react";
+import { useTranslation } from "react-i18next";
+import { RouteComponentProps } from "react-router-dom";
+import { setAccessToken } from "../../accessToken";
+import {
+  CurrentUserDocument,
+  CurrentUserQuery,
+  useLoginMutation,
+} from "../../generated/graphql";
+import { encrypt_with_rsa_public_key } from "../../helpers/auth";
 
-interface Props {
-
-}
+interface Props {}
 
 interface GenerateKeyResult {
-    client_id: string;
-    public_key: string;
-    error: any;
+  client_id: string;
+  public_key: string;
+  error: any;
 }
 
 export const UserLoginPage: React.FC<RouteComponentProps> = ({ history }) => {
-    const [mail, setMail] = useState('');
-    const [password, setPassword] = useState('');
-    const [login] = useLoginMutation();
-    return (<form onSubmit={async e => {
+  const { t, i18n } = useTranslation();
+
+  const [mail, setMail] = useState("");
+  const [password, setPassword] = useState("");
+  const [login] = useLoginMutation();
+  return (
+    <form
+      onSubmit={async (e) => {
         e.preventDefault();
-        const client: GenerateKeyResult = (await (await fetch("http://localhost:3001/generate_key", { method: 'POST' })).json());
+        const client: GenerateKeyResult = await (
+          await fetch("http://localhost:3001/generate_key", { method: "POST" })
+        ).json();
         if (client.error) {
-            console.log(client.error);
-            return;
+          console.log(client.error);
+          return;
         }
         const response = await login({
-            variables: {
-                clientId: client.client_id,
-                mail: mail,
-                password: encrypt_with_rsa_public_key(password ?? "", client.public_key)
-            },
-            update: (store, { data }) => {
-                if (!data)
-                    return null;
-                store.writeQuery<CurrentUserQuery>({
-                    query: CurrentUserDocument,
-                    data: {
-                        currentUser: data.login.user
-                    }
-                })
-
-            }
+          variables: {
+            clientId: client.client_id,
+            mail: mail,
+            password: encrypt_with_rsa_public_key(
+              password ?? "",
+              client.public_key
+            ),
+          },
+          update: (store, { data }) => {
+            if (!data) return null;
+            store.writeQuery<CurrentUserQuery>({
+              query: CurrentUserDocument,
+              data: {
+                currentUser: data.login.user,
+              },
+            });
+          },
         });
         if (response && response.data && response.data.login.accessToken) {
-            setAccessToken(response.data.login?.accessToken ?? "");
-            history.push("/");
+          setAccessToken(response.data.login?.accessToken ?? "");
+          history.push("/");
         }
-    }}>
-        <div>
-            <input value={mail} placeholder="mail" onChange={e => {
-                setMail(e.target.value);
-            }} />
-        </div>
-        <div>
-            <input value={password} type="password" placeholder="password" onChange={e => {
-                setPassword(e.target.value);
-            }} />
-        </div>
-        <button type="submit">Login</button>
-    </form>);
-}
+      }}
+    >
+      <div>
+        <input
+          value={mail}
+          placeholder={t("MailPlaceholder")}
+          onChange={(e) => {
+            setMail(e.target.value);
+          }}
+        />
+      </div>
+      <div>
+        <input
+          value={password}
+          type="password"
+          onChange={(e) => {
+            setPassword(e.target.value);
+          }}
+        />
+      </div>
+      <button type="submit">{t("Login")}</button>
+    </form>
+  );
+};

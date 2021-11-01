@@ -20,7 +20,7 @@ export type ApiKey = {
   __typename?: 'ApiKey';
   created_at: Scalars['DateTime'];
   expires?: Maybe<Scalars['DateTime']>;
-  id: Scalars['ID'];
+  id: Scalars['String'];
   key: Scalars['String'];
   last_use?: Maybe<Scalars['DateTime']>;
   note: Scalars['String'];
@@ -35,7 +35,7 @@ export type ApiScope = {
   category?: Maybe<Array<ApiScopeCategory>>;
   category_id?: Maybe<Scalars['ID']>;
   description: Scalars['String'];
-  id: Scalars['ID'];
+  id: Scalars['String'];
   name: Scalars['String'];
 };
 
@@ -110,7 +110,6 @@ export type Mutation = {
   createTicket: TicketCreateResponse;
   deleteApiKey: DeleteKeyResponse;
   login: LoginResponse;
-  updateTicket: TicketUpdateResponse;
 };
 
 
@@ -125,11 +124,9 @@ export type MutationCreateApiKeyArgs = {
 export type MutationCreateTicketArgs = {
   description: Scalars['String'];
   group_id?: Maybe<Scalars['String']>;
-  issuer_department_id: Scalars['String'];
-  issuer_id?: Maybe<Scalars['String']>;
-  responsible_department_id: Scalars['String'];
-  responsible_user_id: Scalars['String'];
-  service_id: Scalars['String'];
+  issuer?: Maybe<Scalars['String']>;
+  issuer_department: Scalars['String'];
+  service: Scalars['String'];
   short_description: Scalars['String'];
   type: Scalars['String'];
 };
@@ -146,20 +143,6 @@ export type MutationLoginArgs = {
   password: Scalars['String'];
 };
 
-
-export type MutationUpdateTicketArgs = {
-  description?: Maybe<Scalars['String']>;
-  group_id?: Maybe<Scalars['String']>;
-  id: Scalars['String'];
-  owner_group_id?: Maybe<Scalars['String']>;
-  responsible_department_id?: Maybe<Scalars['String']>;
-  responsible_user_id?: Maybe<Scalars['String']>;
-  service_id?: Maybe<Scalars['String']>;
-  short_description?: Maybe<Scalars['String']>;
-  status?: Maybe<Scalars['String']>;
-  type?: Maybe<Scalars['String']>;
-};
-
 export type Permission = {
   __typename?: 'Permission';
   id: Scalars['String'];
@@ -171,14 +154,33 @@ export type Permission = {
 export type Query = {
   __typename?: 'Query';
   currentUser?: Maybe<User>;
+  findAllTickets: TicketQueryAllResponse;
   getAllScopeCategories: GetCategoriesResponse;
   getKeysOfUser: GetKeysResponse;
   hi: Scalars['String'];
+  searchService?: Maybe<Array<Service>>;
+  searchUser?: Maybe<Array<User>>;
+};
+
+
+export type QueryFindAllTicketsArgs = {
+  count: Scalars['Float'];
 };
 
 
 export type QueryGetKeysOfUserArgs = {
   user_id: Scalars['String'];
+};
+
+
+export type QuerySearchServiceArgs = {
+  name: Scalars['String'];
+};
+
+
+export type QuerySearchUserArgs = {
+  department?: Maybe<Scalars['String']>;
+  search: Scalars['String'];
 };
 
 export type Role = {
@@ -200,6 +202,7 @@ export type Service = {
   __typename?: 'Service';
   histories: Array<ServiceHistory>;
   id: Scalars['ID'];
+  name: Scalars['String'];
   service_id: Scalars['String'];
   tickets: Array<Ticket>;
 };
@@ -228,7 +231,7 @@ export type ServiceHistoryAction = {
 
 export type Subscription = {
   __typename?: 'Subscription';
-  ticketCreated: Ticket;
+  ticketCreated?: Maybe<Ticket>;
   ticketUpdated: Ticket;
 };
 
@@ -243,7 +246,7 @@ export type Ticket = {
   created_at: Scalars['DateTime'];
   description: Scalars['String'];
   group?: Maybe<TicketGroup>;
-  group_id: Scalars['ID'];
+  group_id?: Maybe<Scalars['ID']>;
   histories: Array<TicketHistory>;
   id: Scalars['ID'];
   issuer?: Maybe<User>;
@@ -314,6 +317,12 @@ export type TicketHistoryAction = {
   value3: Scalars['String'];
 };
 
+export type TicketQueryAllResponse = {
+  __typename?: 'TicketQueryAllResponse';
+  error?: Maybe<ServerError>;
+  tickets?: Maybe<Array<Ticket>>;
+};
+
 export type TicketTemplate = {
   __typename?: 'TicketTemplate';
   create_group: Scalars['Boolean'];
@@ -331,13 +340,6 @@ export type TicketTemplate = {
   service_id: Scalars['ID'];
   short_description: Scalars['String'];
   type: Scalars['String'];
-};
-
-export type TicketUpdateResponse = {
-  __typename?: 'TicketUpdateResponse';
-  errors?: Maybe<Array<ServerError>>;
-  ticket?: Maybe<Ticket>;
-  validation_errors?: Maybe<Array<ValidationError>>;
 };
 
 export type User = {
@@ -390,10 +392,23 @@ export type CreateApiKeyMutationVariables = Exact<{
 
 export type CreateApiKeyMutation = { __typename?: 'Mutation', createApiKey: { __typename?: 'CreateKeyResponse', secret?: { __typename?: 'CrypticoEncryptedKey', cipher: string, status: string } | null | undefined, error?: { __typename?: 'ServerError', name: string, message: string } | null | undefined, validation_errors?: Array<{ __typename?: 'ValidationError', field: string, message: string }> | null | undefined } };
 
+export type CreateTicketMutationVariables = Exact<{
+  service: Scalars['String'];
+  issuerDepartment: Scalars['String'];
+  type: Scalars['String'];
+  description: Scalars['String'];
+  shortDescription: Scalars['String'];
+  issuer?: Maybe<Scalars['String']>;
+  groupId?: Maybe<Scalars['String']>;
+}>;
+
+
+export type CreateTicketMutation = { __typename?: 'Mutation', createTicket: { __typename?: 'TicketCreateResponse', validation_errors?: Array<{ __typename?: 'ValidationError', field: string, message: string }> | null | undefined, errors?: Array<{ __typename?: 'ServerError', name: string, message: string }> | null | undefined, ticket?: { __typename?: 'Ticket', id: string, ticket_id: string, short_description: string, description: string, type: string, status: string, issuer_id: string, responsible_department_id: string, responsible_user_id: string, issuer_department_id: string, service_id: string, group_id?: string | null | undefined, created_at: any, updated_at: any } | null | undefined } };
+
 export type CurrentUserQueryVariables = Exact<{ [key: string]: never; }>;
 
 
-export type CurrentUserQuery = { __typename?: 'Query', currentUser?: { __typename?: 'User', id: string, username: string, displayName: string, mail: string } | null | undefined };
+export type CurrentUserQuery = { __typename?: 'Query', currentUser?: { __typename?: 'User', id: string, username: string, displayName: string, mail: string, department: { __typename?: 'Department', id: string, name: string } } | null | undefined };
 
 export type DeleteApiKeyMutationVariables = Exact<{
   deleteApiKeyId: Scalars['String'];
@@ -401,6 +416,13 @@ export type DeleteApiKeyMutationVariables = Exact<{
 
 
 export type DeleteApiKeyMutation = { __typename?: 'Mutation', deleteApiKey: { __typename?: 'DeleteKeyResponse', success?: boolean | null | undefined, error?: { __typename?: 'ServerError', name: string, message: string } | null | undefined } };
+
+export type FindAllTicketsQueryVariables = Exact<{
+  count: Scalars['Float'];
+}>;
+
+
+export type FindAllTicketsQuery = { __typename?: 'Query', findAllTickets: { __typename?: 'TicketQueryAllResponse', tickets?: Array<{ __typename?: 'Ticket', id: string, ticket_id: string, short_description: string, type: string, status: string, created_at: any, updated_at: any, closed_at?: any | null | undefined, responsible_user?: { __typename?: 'User', id: string, username: string, displayName: string } | null | undefined, responsible_department: { __typename?: 'Department', name: string }, issuer?: { __typename?: 'User', id: string, username: string, displayName: string } | null | undefined, issuer_department: { __typename?: 'Department', name: string }, service: { __typename?: 'Service', id: string, name: string }, group?: { __typename?: 'TicketGroup', id: string } | null | undefined }> | null | undefined } };
 
 export type GetAllScopeCategoriesQueryVariables = Exact<{ [key: string]: never; }>;
 
@@ -421,7 +443,20 @@ export type LoginMutationVariables = Exact<{
 }>;
 
 
-export type LoginMutation = { __typename?: 'Mutation', login: { __typename?: 'LoginResponse', accessToken?: string | null | undefined, user?: { __typename?: 'User', id: string, username: string, displayName: string, mail: string } | null | undefined, error?: { __typename?: 'ServerError', name: string, message: string } | null | undefined } };
+export type LoginMutation = { __typename?: 'Mutation', login: { __typename?: 'LoginResponse', accessToken?: string | null | undefined, user?: { __typename?: 'User', id: string, username: string, displayName: string, mail: string, department: { __typename?: 'Department', id: string, name: string } } | null | undefined, error?: { __typename?: 'ServerError', name: string, message: string } | null | undefined } };
+
+export type SearchUserByDisplayNameQueryVariables = Exact<{
+  search: Scalars['String'];
+  department?: Maybe<Scalars['String']>;
+}>;
+
+
+export type SearchUserByDisplayNameQuery = { __typename?: 'Query', searchUser?: Array<{ __typename?: 'User', displayName: string, department: { __typename?: 'Department', name: string } }> | null | undefined };
+
+export type NewTicketCreatedSubscriptionVariables = Exact<{ [key: string]: never; }>;
+
+
+export type NewTicketCreatedSubscription = { __typename?: 'Subscription', ticketCreated?: { __typename?: 'Ticket', id: string, ticket_id: string, short_description: string, description: string, type: string, status: string, created_at: any, updated_at: any, responsible_user?: { __typename?: 'User', id: string, displayName: string } | null | undefined, responsible_department: { __typename?: 'Department', name: string }, issuer?: { __typename?: 'User', id: string, displayName: string } | null | undefined, issuer_department: { __typename?: 'Department', name: string }, service: { __typename?: 'Service', id: string, service_id: string, name: string }, group?: { __typename?: 'TicketGroup', id: string } | null | undefined } | null | undefined };
 
 
 export const CreateApiKeyDocument = gql`
@@ -476,6 +511,76 @@ export function useCreateApiKeyMutation(baseOptions?: Apollo.MutationHookOptions
 export type CreateApiKeyMutationHookResult = ReturnType<typeof useCreateApiKeyMutation>;
 export type CreateApiKeyMutationResult = Apollo.MutationResult<CreateApiKeyMutation>;
 export type CreateApiKeyMutationOptions = Apollo.BaseMutationOptions<CreateApiKeyMutation, CreateApiKeyMutationVariables>;
+export const CreateTicketDocument = gql`
+    mutation createTicket($service: String!, $issuerDepartment: String!, $type: String!, $description: String!, $shortDescription: String!, $issuer: String, $groupId: String) {
+  createTicket(
+    service: $service
+    issuer_department: $issuerDepartment
+    type: $type
+    description: $description
+    short_description: $shortDescription
+    issuer: $issuer
+    group_id: $groupId
+  ) {
+    validation_errors {
+      field
+      message
+    }
+    errors {
+      name
+      message
+    }
+    ticket {
+      id
+      ticket_id
+      short_description
+      description
+      type
+      status
+      issuer_id
+      responsible_department_id
+      responsible_user_id
+      issuer_department_id
+      service_id
+      group_id
+      created_at
+      updated_at
+    }
+  }
+}
+    `;
+export type CreateTicketMutationFn = Apollo.MutationFunction<CreateTicketMutation, CreateTicketMutationVariables>;
+
+/**
+ * __useCreateTicketMutation__
+ *
+ * To run a mutation, you first call `useCreateTicketMutation` within a React component and pass it any options that fit your needs.
+ * When your component renders, `useCreateTicketMutation` returns a tuple that includes:
+ * - A mutate function that you can call at any time to execute the mutation
+ * - An object with fields that represent the current status of the mutation's execution
+ *
+ * @param baseOptions options that will be passed into the mutation, supported options are listed on: https://www.apollographql.com/docs/react/api/react-hooks/#options-2;
+ *
+ * @example
+ * const [createTicketMutation, { data, loading, error }] = useCreateTicketMutation({
+ *   variables: {
+ *      service: // value for 'service'
+ *      issuerDepartment: // value for 'issuerDepartment'
+ *      type: // value for 'type'
+ *      description: // value for 'description'
+ *      shortDescription: // value for 'shortDescription'
+ *      issuer: // value for 'issuer'
+ *      groupId: // value for 'groupId'
+ *   },
+ * });
+ */
+export function useCreateTicketMutation(baseOptions?: Apollo.MutationHookOptions<CreateTicketMutation, CreateTicketMutationVariables>) {
+        const options = {...defaultOptions, ...baseOptions}
+        return Apollo.useMutation<CreateTicketMutation, CreateTicketMutationVariables>(CreateTicketDocument, options);
+      }
+export type CreateTicketMutationHookResult = ReturnType<typeof useCreateTicketMutation>;
+export type CreateTicketMutationResult = Apollo.MutationResult<CreateTicketMutation>;
+export type CreateTicketMutationOptions = Apollo.BaseMutationOptions<CreateTicketMutation, CreateTicketMutationVariables>;
 export const CurrentUserDocument = gql`
     query CurrentUser {
   currentUser {
@@ -483,6 +588,10 @@ export const CurrentUserDocument = gql`
     username
     displayName
     mail
+    department {
+      id
+      name
+    }
   }
 }
     `;
@@ -550,6 +659,73 @@ export function useDeleteApiKeyMutation(baseOptions?: Apollo.MutationHookOptions
 export type DeleteApiKeyMutationHookResult = ReturnType<typeof useDeleteApiKeyMutation>;
 export type DeleteApiKeyMutationResult = Apollo.MutationResult<DeleteApiKeyMutation>;
 export type DeleteApiKeyMutationOptions = Apollo.BaseMutationOptions<DeleteApiKeyMutation, DeleteApiKeyMutationVariables>;
+export const FindAllTicketsDocument = gql`
+    query findAllTickets($count: Float!) {
+  findAllTickets(count: $count) {
+    tickets {
+      id
+      ticket_id
+      short_description
+      type
+      status
+      responsible_user {
+        id
+        username
+        displayName
+      }
+      responsible_department {
+        name
+      }
+      issuer {
+        id
+        username
+        displayName
+      }
+      issuer_department {
+        name
+      }
+      service {
+        id
+        name
+      }
+      group {
+        id
+      }
+      created_at
+      updated_at
+      closed_at
+    }
+  }
+}
+    `;
+
+/**
+ * __useFindAllTicketsQuery__
+ *
+ * To run a query within a React component, call `useFindAllTicketsQuery` and pass it any options that fit your needs.
+ * When your component renders, `useFindAllTicketsQuery` returns an object from Apollo Client that contains loading, error, and data properties
+ * you can use to render your UI.
+ *
+ * @param baseOptions options that will be passed into the query, supported options are listed on: https://www.apollographql.com/docs/react/api/react-hooks/#options;
+ *
+ * @example
+ * const { data, loading, error } = useFindAllTicketsQuery({
+ *   variables: {
+ *      count: // value for 'count'
+ *   },
+ * });
+ */
+export function useFindAllTicketsQuery(baseOptions: Apollo.QueryHookOptions<FindAllTicketsQuery, FindAllTicketsQueryVariables>) {
+        const options = {...defaultOptions, ...baseOptions}
+        return Apollo.useQuery<FindAllTicketsQuery, FindAllTicketsQueryVariables>(FindAllTicketsDocument, options);
+      }
+export function useFindAllTicketsLazyQuery(baseOptions?: Apollo.LazyQueryHookOptions<FindAllTicketsQuery, FindAllTicketsQueryVariables>) {
+          const options = {...defaultOptions, ...baseOptions}
+          return Apollo.useLazyQuery<FindAllTicketsQuery, FindAllTicketsQueryVariables>(FindAllTicketsDocument, options);
+        }
+export type FindAllTicketsQueryHookResult = ReturnType<typeof useFindAllTicketsQuery>;
+export type FindAllTicketsLazyQueryHookResult = ReturnType<typeof useFindAllTicketsLazyQuery>;
+export type FindAllTicketsQueryResult = Apollo.QueryResult<FindAllTicketsQuery, FindAllTicketsQueryVariables>;
 export const GetAllScopeCategoriesDocument = gql`
     query getAllScopeCategories {
   getAllScopeCategories {
@@ -649,6 +825,10 @@ export const LoginDocument = gql`
       username
       displayName
       mail
+      department {
+        id
+        name
+      }
     }
     accessToken
     error {
@@ -686,3 +866,100 @@ export function useLoginMutation(baseOptions?: Apollo.MutationHookOptions<LoginM
 export type LoginMutationHookResult = ReturnType<typeof useLoginMutation>;
 export type LoginMutationResult = Apollo.MutationResult<LoginMutation>;
 export type LoginMutationOptions = Apollo.BaseMutationOptions<LoginMutation, LoginMutationVariables>;
+export const SearchUserByDisplayNameDocument = gql`
+    query searchUserByDisplayName($search: String!, $department: String) {
+  searchUser(search: $search, department: $department) {
+    displayName
+    department {
+      name
+    }
+  }
+}
+    `;
+
+/**
+ * __useSearchUserByDisplayNameQuery__
+ *
+ * To run a query within a React component, call `useSearchUserByDisplayNameQuery` and pass it any options that fit your needs.
+ * When your component renders, `useSearchUserByDisplayNameQuery` returns an object from Apollo Client that contains loading, error, and data properties
+ * you can use to render your UI.
+ *
+ * @param baseOptions options that will be passed into the query, supported options are listed on: https://www.apollographql.com/docs/react/api/react-hooks/#options;
+ *
+ * @example
+ * const { data, loading, error } = useSearchUserByDisplayNameQuery({
+ *   variables: {
+ *      search: // value for 'search'
+ *      department: // value for 'department'
+ *   },
+ * });
+ */
+export function useSearchUserByDisplayNameQuery(baseOptions: Apollo.QueryHookOptions<SearchUserByDisplayNameQuery, SearchUserByDisplayNameQueryVariables>) {
+        const options = {...defaultOptions, ...baseOptions}
+        return Apollo.useQuery<SearchUserByDisplayNameQuery, SearchUserByDisplayNameQueryVariables>(SearchUserByDisplayNameDocument, options);
+      }
+export function useSearchUserByDisplayNameLazyQuery(baseOptions?: Apollo.LazyQueryHookOptions<SearchUserByDisplayNameQuery, SearchUserByDisplayNameQueryVariables>) {
+          const options = {...defaultOptions, ...baseOptions}
+          return Apollo.useLazyQuery<SearchUserByDisplayNameQuery, SearchUserByDisplayNameQueryVariables>(SearchUserByDisplayNameDocument, options);
+        }
+export type SearchUserByDisplayNameQueryHookResult = ReturnType<typeof useSearchUserByDisplayNameQuery>;
+export type SearchUserByDisplayNameLazyQueryHookResult = ReturnType<typeof useSearchUserByDisplayNameLazyQuery>;
+export type SearchUserByDisplayNameQueryResult = Apollo.QueryResult<SearchUserByDisplayNameQuery, SearchUserByDisplayNameQueryVariables>;
+export const NewTicketCreatedDocument = gql`
+    subscription NewTicketCreated {
+  ticketCreated {
+    id
+    ticket_id
+    short_description
+    description
+    type
+    status
+    responsible_user {
+      id
+      displayName
+    }
+    responsible_department {
+      name
+    }
+    issuer {
+      id
+      displayName
+    }
+    issuer_department {
+      name
+    }
+    service {
+      id
+      service_id
+      name
+    }
+    group {
+      id
+    }
+    created_at
+    updated_at
+  }
+}
+    `;
+
+/**
+ * __useNewTicketCreatedSubscription__
+ *
+ * To run a query within a React component, call `useNewTicketCreatedSubscription` and pass it any options that fit your needs.
+ * When your component renders, `useNewTicketCreatedSubscription` returns an object from Apollo Client that contains loading, error, and data properties
+ * you can use to render your UI.
+ *
+ * @param baseOptions options that will be passed into the subscription, supported options are listed on: https://www.apollographql.com/docs/react/api/react-hooks/#options;
+ *
+ * @example
+ * const { data, loading, error } = useNewTicketCreatedSubscription({
+ *   variables: {
+ *   },
+ * });
+ */
+export function useNewTicketCreatedSubscription(baseOptions?: Apollo.SubscriptionHookOptions<NewTicketCreatedSubscription, NewTicketCreatedSubscriptionVariables>) {
+        const options = {...defaultOptions, ...baseOptions}
+        return Apollo.useSubscription<NewTicketCreatedSubscription, NewTicketCreatedSubscriptionVariables>(NewTicketCreatedDocument, options);
+      }
+export type NewTicketCreatedSubscriptionHookResult = ReturnType<typeof useNewTicketCreatedSubscription>;
+export type NewTicketCreatedSubscriptionResult = Apollo.SubscriptionResult<NewTicketCreatedSubscription>;

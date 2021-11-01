@@ -5,6 +5,10 @@ mutation Login($password: String!, $mail: String!, $clientId: String!) {
       username
       displayName
       mail
+      department {
+        id
+        name
+      }
     }
     accessToken
     error {
