@@ -1,5 +1,9 @@
-query findAllTickets($count: Float!) {
-  findAllTickets(count: $count) {
+mutation FindTickets(
+  $filter: TicketFilter
+  $search: TicketSearchArgument
+  $count: Float
+) {
+  findTickets(filter: $filter, search: $search, count: $count) {
     tickets {
       id
       ticket_id
@@ -10,20 +14,25 @@ query findAllTickets($count: Float!) {
         id
         username
         displayName
+        mail
       }
       responsible_department {
+        id
         name
       }
       issuer {
         id
         username
         displayName
+        mail
       }
       issuer_department {
+        id
         name
       }
       service {
         id
+        service_id
         name
       }
       group {

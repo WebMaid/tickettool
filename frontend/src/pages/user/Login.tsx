@@ -1,6 +1,6 @@
 import React, { useState } from "react";
 import { useTranslation } from "react-i18next";
-import { RouteComponentProps } from "react-router-dom";
+import { useNavigate } from "react-router-dom";
 import { setAccessToken } from "../../accessToken";
 import {
   CurrentUserDocument,
@@ -17,7 +17,8 @@ interface GenerateKeyResult {
   error: any;
 }
 
-export const UserLoginPage: React.FC<RouteComponentProps> = ({ history }) => {
+export const UserLoginPage: React.FC<Props> = () => {
+  const navigator = useNavigate();
   const { t, i18n } = useTranslation();
 
   const [mail, setMail] = useState("");
@@ -55,7 +56,7 @@ export const UserLoginPage: React.FC<RouteComponentProps> = ({ history }) => {
         });
         if (response && response.data && response.data.login.accessToken) {
           setAccessToken(response.data.login?.accessToken ?? "");
-          history.push("/");
+          navigator("/", { replace: true });
         }
       }}
     >

@@ -1,7 +1,7 @@
 import React, { useEffect, useState } from "react";
 import { SubmitHandler, useForm } from "react-hook-form";
 import { useTranslation } from "react-i18next";
-import { RouteComponentProps } from "react-router";
+import { useNavigate } from "react-router";
 import { getAccessToken } from "../../accessToken";
 import { CreateTicketFormComponent } from "../../components/forms/CreateTicket";
 import { AutoCompleteTextInput } from "../../components/main/AutoCompleteTextInput";
@@ -13,6 +13,8 @@ import {
 } from "../../generated/graphql";
 import { InputSizeEnum } from "../../objects/InputSizeEnum";
 import { settings } from "../../Settings";
+
+interface Props {}
 
 export interface ITicketCreateFormInputs {
   type: string;
@@ -26,9 +28,8 @@ export interface ITicketCreateFormInputs {
   group_id: string;
 }
 
-export const TicketCreatePage: React.FC<RouteComponentProps> = ({
-  history,
-}) => {
+export const TicketCreatePage: React.FC<Props> = () => {
+  const navigator = useNavigate();
   const { t, i18n } = useTranslation();
   const [createTicket] = useCreateTicketMutation();
 
@@ -50,8 +51,10 @@ export const TicketCreatePage: React.FC<RouteComponentProps> = ({
       !response.data?.createTicket.validation_errors
     ) {
       if (response.data?.createTicket.ticket?.id)
-        history.push(`/ticket/${response.data.createTicket.ticket.id}`);
-      else history.push("/tickets");
+        navigator(`/ticket/${response.data.createTicket.ticket.id}`, {
+          replace: true,
+        });
+      else navigator("/tickets", { replace: true });
     }
   };
 

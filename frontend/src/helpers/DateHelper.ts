@@ -64,8 +64,8 @@ export const addDateStringToDate = (datestring: string, date: Date) => {
   );
 };
 
-export const formatDateTime = (value: string, translation: Function) => {
-  if (!value) return "";
+export const formatDateTime = (value?: string, translation?: Function) => {
+  if (!value || !translation) return "";
   const date = new Date(value);
   let day = date.getDate().toString();
   if (day.length != 2) {

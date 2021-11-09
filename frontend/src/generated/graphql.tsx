@@ -32,7 +32,7 @@ export type ApiKey = {
 
 export type ApiScope = {
   __typename?: 'ApiScope';
-  category?: Maybe<Array<ApiScopeCategory>>;
+  category?: Maybe<ApiScopeCategory>;
   category_id?: Maybe<Scalars['ID']>;
   description: Scalars['String'];
   id: Scalars['String'];
@@ -51,6 +51,11 @@ export type ApiScopeInput = {
   id: Scalars['ID'];
 };
 
+export type BooleanFilter = {
+  comparasion: Scalars['String'];
+  value: Scalars['Boolean'];
+};
+
 export type CreateKeyResponse = {
   __typename?: 'CreateKeyResponse';
   api_key?: Maybe<ApiKey>;
@@ -63,6 +68,17 @@ export type CrypticoEncryptedKey = {
   __typename?: 'CrypticoEncryptedKey';
   cipher: Scalars['String'];
   status: Scalars['String'];
+};
+
+export type DateBeween = {
+  max?: Maybe<Scalars['String']>;
+  min?: Maybe<Scalars['String']>;
+};
+
+export type DateFilter = {
+  between: DateBeween;
+  comparasion: Scalars['String'];
+  value: Scalars['String'];
 };
 
 export type DeleteKeyResponse = {
@@ -84,6 +100,40 @@ export type Department = {
   users: Array<User>;
 };
 
+export type DepartmentFilter = {
+  history_responsibilities?: Maybe<TicketHistoryFilter>;
+  id?: Maybe<Array<IdFilter>>;
+  issued?: Maybe<TicketFilter>;
+  name?: Maybe<Array<StringFilter>>;
+  previous_ticket_responsibilities?: Maybe<TicketFilter>;
+  roles?: Maybe<RoleFilter>;
+  template_responsibilities?: Maybe<TicketTemplateFilter>;
+  ticket_responsiblities?: Maybe<TicketFilter>;
+  users?: Maybe<UserFilter>;
+};
+
+export type DepartmentInclude = {
+  history_responsiblities?: Maybe<TicketHistoryInclude>;
+  id?: Maybe<Scalars['Boolean']>;
+  issued?: Maybe<TicketInclude>;
+  name?: Maybe<Scalars['Boolean']>;
+  previous_ticket_responsibilities?: Maybe<TicketInclude>;
+  roles?: Maybe<RoleInclude>;
+  template_responsibilities?: Maybe<TicketTemplateInclude>;
+  ticket_responsibilities?: Maybe<TicketInclude>;
+  users?: Maybe<UserInclude>;
+};
+
+export type EnumArrayFilter = {
+  comparasion: Scalars['String'];
+  values: Array<Scalars['String']>;
+};
+
+export type EnumFilter = {
+  comparasion: Scalars['String'];
+  value: Scalars['String'];
+};
+
 export type GetCategoriesResponse = {
   __typename?: 'GetCategoriesResponse';
   categories?: Maybe<Array<ApiScopeCategory>>;
@@ -95,6 +145,10 @@ export type GetKeysResponse = {
   errors?: Maybe<Array<ServerError>>;
   keys?: Maybe<Array<ApiKey>>;
   validation_errors?: Maybe<Array<ValidationError>>;
+};
+
+export type IdFilter = {
+  value: Scalars['String'];
 };
 
 export type LoginResponse = {
@@ -109,6 +163,7 @@ export type Mutation = {
   createApiKey: CreateKeyResponse;
   createTicket: TicketCreateResponse;
   deleteApiKey: DeleteKeyResponse;
+  findTickets: TicketQueryAllResponse;
   login: LoginResponse;
 };
 
@@ -137,10 +192,39 @@ export type MutationDeleteApiKeyArgs = {
 };
 
 
+export type MutationFindTicketsArgs = {
+  count?: Maybe<Scalars['Float']>;
+  filter?: Maybe<TicketFilter>;
+  order?: Maybe<TicketOrder>;
+  search?: Maybe<TicketSearchArgument>;
+};
+
+
 export type MutationLoginArgs = {
   client_id: Scalars['String'];
   mail: Scalars['String'];
   password: Scalars['String'];
+};
+
+export type NullableDateFilter = {
+  between: DateBeween;
+  comparasion: Scalars['String'];
+  value: Scalars['String'];
+};
+
+export type NullableEnumFilter = {
+  comparasion: Scalars['String'];
+  value: Scalars['String'];
+};
+
+export type NullableStringFilter = {
+  comparasion: Scalars['String'];
+  value: Scalars['String'];
+};
+
+export type Order = {
+  direction: Scalars['String'];
+  position: Scalars['Int'];
 };
 
 export type Permission = {
@@ -151,20 +235,28 @@ export type Permission = {
   users: Array<User>;
 };
 
+export type PermissionFilter = {
+  id?: Maybe<Array<IdFilter>>;
+  name?: Maybe<Array<StringFilter>>;
+  roles?: Maybe<RoleFilter>;
+  users?: Maybe<UserFilter>;
+};
+
+export type PermissionInclude = {
+  id?: Maybe<Scalars['Boolean']>;
+  name?: Maybe<Scalars['Boolean']>;
+  roles?: Maybe<RoleInclude>;
+  users?: Maybe<UserInclude>;
+};
+
 export type Query = {
   __typename?: 'Query';
   currentUser?: Maybe<User>;
-  findAllTickets: TicketQueryAllResponse;
   getAllScopeCategories: GetCategoriesResponse;
   getKeysOfUser: GetKeysResponse;
   hi: Scalars['String'];
   searchService?: Maybe<Array<Service>>;
   searchUser?: Maybe<Array<User>>;
-};
-
-
-export type QueryFindAllTicketsArgs = {
-  count: Scalars['Float'];
 };
 
 
@@ -192,6 +284,22 @@ export type Role = {
   users: Array<User>;
 };
 
+export type RoleFilter = {
+  departments?: Maybe<DepartmentFilter>;
+  id?: Maybe<Array<IdFilter>>;
+  name?: Maybe<Array<StringFilter>>;
+  permissions?: Maybe<PermissionFilter>;
+  users?: Maybe<UserFilter>;
+};
+
+export type RoleInclude = {
+  departments?: Maybe<DepartmentInclude>;
+  id?: Maybe<Scalars['Boolean']>;
+  name?: Maybe<Scalars['Boolean']>;
+  permissions?: Maybe<PermissionInclude>;
+  user?: Maybe<UserInclude>;
+};
+
 export type ServerError = {
   __typename?: 'ServerError';
   message: Scalars['String'];
@@ -205,6 +313,14 @@ export type Service = {
   name: Scalars['String'];
   service_id: Scalars['String'];
   tickets: Array<Ticket>;
+};
+
+export type ServiceFilter = {
+  histories?: Maybe<ServiceHistoryFilter>;
+  id?: Maybe<Array<IdFilter>>;
+  name?: Maybe<Array<StringFilter>>;
+  service_id?: Maybe<Array<StringFilter>>;
+  tickets?: Maybe<TicketFilter>;
 };
 
 export type ServiceHistory = {
@@ -227,6 +343,63 @@ export type ServiceHistoryAction = {
   value1: Scalars['String'];
   value2: Scalars['String'];
   value3: Scalars['String'];
+};
+
+export type ServiceHistoryActionFilter = {
+  histories?: Maybe<ServiceHistoryFilter>;
+  id?: Maybe<Array<IdFilter>>;
+  type?: Maybe<Array<EnumFilter>>;
+  value1?: Maybe<Array<NullableStringFilter>>;
+  value2?: Maybe<Array<NullableStringFilter>>;
+  value3?: Maybe<Array<NullableStringFilter>>;
+};
+
+export type ServiceHistoryActionInclude = {
+  histories?: Maybe<Scalars['Boolean']>;
+  id?: Maybe<Scalars['Boolean']>;
+  type?: Maybe<Scalars['Boolean']>;
+  value1?: Maybe<Scalars['Boolean']>;
+  value2?: Maybe<Scalars['Boolean']>;
+  value3?: Maybe<Scalars['Boolean']>;
+};
+
+export type ServiceHistoryFilter = {
+  action?: Maybe<ServiceHistoryActionFilter>;
+  created_at?: Maybe<Array<DateFilter>>;
+  id?: Maybe<Array<IdFilter>>;
+  responsible_user?: Maybe<UserFilter>;
+  service?: Maybe<ServiceFilter>;
+};
+
+export type ServiceHistoryInclude = {
+  action?: Maybe<ServiceHistoryActionInclude>;
+  action_id?: Maybe<Scalars['Boolean']>;
+  created_at?: Maybe<Scalars['Boolean']>;
+  id?: Maybe<Scalars['Boolean']>;
+  responsible_user?: Maybe<UserInclude>;
+  responsible_user_id?: Maybe<Scalars['Boolean']>;
+  service?: Maybe<ServiceInclude>;
+  service_id?: Maybe<Scalars['Boolean']>;
+};
+
+export type ServiceInclude = {
+  histories?: Maybe<ServiceHistoryInclude>;
+  id?: Maybe<Scalars['Boolean']>;
+  name?: Maybe<Scalars['Boolean']>;
+  service_id?: Maybe<Scalars['Boolean']>;
+  tickets?: Maybe<TicketInclude>;
+};
+
+export type ServiceOrder = {
+  histories?: Maybe<TicketOrder>;
+  id?: Maybe<Order>;
+  name?: Maybe<Order>;
+  service_id?: Maybe<Order>;
+};
+
+export type StringFilter = {
+  comparasion: Scalars['String'];
+  value: Scalars['String'];
 };
 
 export type Subscription = {
@@ -279,6 +452,21 @@ export type TicketComment = {
   id: Scalars['ID'];
 };
 
+export type TicketCommentFilter = {
+  content?: Maybe<Array<StringFilter>>;
+  created_at?: Maybe<Array<DateFilter>>;
+  creator?: Maybe<UserFilter>;
+  id?: Maybe<Array<IdFilter>>;
+};
+
+export type TicketCommentInclude = {
+  content?: Maybe<Scalars['Boolean']>;
+  created_at?: Maybe<Scalars['Boolean']>;
+  creator?: Maybe<UserInclude>;
+  creator_id?: Maybe<Scalars['Boolean']>;
+  id?: Maybe<Scalars['Boolean']>;
+};
+
 export type TicketCreateResponse = {
   __typename?: 'TicketCreateResponse';
   errors?: Maybe<Array<ServerError>>;
@@ -286,11 +474,43 @@ export type TicketCreateResponse = {
   validation_errors?: Maybe<Array<ValidationError>>;
 };
 
+export type TicketFilter = {
+  closed_at?: Maybe<Array<NullableDateFilter>>;
+  created_at?: Maybe<Array<DateFilter>>;
+  description?: Maybe<Array<StringFilter>>;
+  group?: Maybe<TicketGroupFilter>;
+  id?: Maybe<Array<IdFilter>>;
+  issuer?: Maybe<UserFilter>;
+  issuer_department?: Maybe<DepartmentFilter>;
+  owner_group?: Maybe<TicketGroupFilter>;
+  previous_responsible_department?: Maybe<DepartmentFilter>;
+  responsible_department?: Maybe<DepartmentFilter>;
+  responsible_user?: Maybe<UserFilter>;
+  service?: Maybe<ServiceFilter>;
+  short_description?: Maybe<Array<StringFilter>>;
+  status?: Maybe<Array<EnumFilter>>;
+  ticket_id?: Maybe<Array<StringFilter>>;
+  type?: Maybe<Array<EnumFilter>>;
+  updated_at?: Maybe<Array<DateFilter>>;
+};
+
 export type TicketGroup = {
   __typename?: 'TicketGroup';
   id: Scalars['ID'];
   members: Array<Ticket>;
   owner: Ticket;
+};
+
+export type TicketGroupFilter = {
+  id?: Maybe<Array<IdFilter>>;
+  members?: Maybe<TicketFilter>;
+  owner?: Maybe<TicketFilter>;
+};
+
+export type TicketGroupInclude = {
+  id?: Maybe<Scalars['Boolean']>;
+  members?: Maybe<TicketInclude>;
+  owner?: Maybe<TicketInclude>;
 };
 
 export type TicketHistory = {
@@ -317,10 +537,88 @@ export type TicketHistoryAction = {
   value3: Scalars['String'];
 };
 
+export type TicketHistoryActionFilter = {
+  history?: Maybe<TicketHistoryFilter>;
+  id?: Maybe<Array<IdFilter>>;
+  type?: Maybe<Array<NullableEnumFilter>>;
+  value1?: Maybe<Array<NullableStringFilter>>;
+  value2?: Maybe<Array<NullableStringFilter>>;
+  value3?: Maybe<Array<NullableStringFilter>>;
+};
+
+export type TicketHistoryActionInclude = {
+  history?: Maybe<TicketHistoryInclude>;
+  history_id?: Maybe<Scalars['Boolean']>;
+  id?: Maybe<Scalars['Boolean']>;
+  type?: Maybe<Scalars['Boolean']>;
+  value1?: Maybe<Scalars['Boolean']>;
+  value2?: Maybe<Scalars['Boolean']>;
+  value3?: Maybe<Scalars['Boolean']>;
+};
+
+export type TicketHistoryFilter = {
+  actions?: Maybe<TicketHistoryActionFilter>;
+  created_at?: Maybe<Array<DateFilter>>;
+  id?: Maybe<Array<IdFilter>>;
+  responsible_department?: Maybe<DepartmentFilter>;
+  responsible_user?: Maybe<UserFilter>;
+  ticket?: Maybe<TicketFilter>;
+};
+
+export type TicketHistoryInclude = {
+  actions?: Maybe<TicketHistoryActionInclude>;
+  created_at?: Maybe<Scalars['Boolean']>;
+  id?: Maybe<Scalars['Boolean']>;
+  responsible_department?: Maybe<DepartmentInclude>;
+  responsible_department_id?: Maybe<Scalars['Boolean']>;
+  responsible_user?: Maybe<UserInclude>;
+  responsible_user_id?: Maybe<Scalars['Boolean']>;
+  ticket?: Maybe<TicketInclude>;
+  ticket_id?: Maybe<Scalars['Boolean']>;
+};
+
+export type TicketInclude = {
+  closed_at?: Maybe<Scalars['Boolean']>;
+  created_at?: Maybe<Scalars['Boolean']>;
+  description?: Maybe<Scalars['Boolean']>;
+  group?: Maybe<TicketGroupInclude>;
+  id?: Maybe<Scalars['Boolean']>;
+  issuer?: Maybe<UserInclude>;
+  issuer_department?: Maybe<DepartmentInclude>;
+  owner_group?: Maybe<TicketGroupInclude>;
+  previous_responsible_department?: Maybe<DepartmentInclude>;
+  responsible_department?: Maybe<DepartmentInclude>;
+  responsible_user?: Maybe<UserInclude>;
+  service?: Maybe<ServiceInclude>;
+  short_description?: Maybe<Scalars['Boolean']>;
+  status?: Maybe<Scalars['Boolean']>;
+  ticket_id?: Maybe<Scalars['Boolean']>;
+  type?: Maybe<Scalars['Boolean']>;
+  updated_at?: Maybe<Scalars['Boolean']>;
+};
+
+export type TicketOrder = {
+  closed_at?: Maybe<Order>;
+  created_at?: Maybe<Order>;
+  description?: Maybe<Order>;
+  id?: Maybe<Order>;
+  service?: Maybe<ServiceOrder>;
+  short_description?: Maybe<Order>;
+  status?: Maybe<Order>;
+  ticket_id?: Maybe<Order>;
+  type?: Maybe<Order>;
+  updated_at?: Maybe<Order>;
+};
+
 export type TicketQueryAllResponse = {
   __typename?: 'TicketQueryAllResponse';
   error?: Maybe<ServerError>;
   tickets?: Maybe<Array<Ticket>>;
+};
+
+export type TicketSearchArgument = {
+  include?: Maybe<TicketInclude>;
+  value: Scalars['String'];
 };
 
 export type TicketTemplate = {
@@ -342,25 +640,95 @@ export type TicketTemplate = {
   type: Scalars['String'];
 };
 
+export type TicketTemplateFilter = {
+  create_group?: Maybe<Array<BooleanFilter>>;
+  description?: Maybe<Array<NullableStringFilter>>;
+  group?: Maybe<TicketGroupFilter>;
+  id?: Maybe<Array<IdFilter>>;
+  issuer_department?: Maybe<UserFilter>;
+  responsible_department?: Maybe<DepartmentFilter>;
+  responsible_user?: Maybe<UserFilter>;
+  service?: Maybe<ServiceFilter>;
+  short_description?: Maybe<Array<NullableStringFilter>>;
+  type?: Maybe<Array<NullableEnumFilter>>;
+};
+
+export type TicketTemplateInclude = {
+  create_group?: Maybe<Scalars['Boolean']>;
+  description?: Maybe<Scalars['Boolean']>;
+  group?: Maybe<TicketGroupInclude>;
+  group_id?: Maybe<Scalars['Boolean']>;
+  id?: Maybe<Scalars['Boolean']>;
+  issuer_department?: Maybe<DepartmentInclude>;
+  issuer_department_id?: Maybe<Scalars['Boolean']>;
+  responsible_department?: Maybe<DepartmentInclude>;
+  responsible_department_id?: Maybe<Scalars['Boolean']>;
+  responsible_user?: Maybe<UserInclude>;
+  responsible_user_id?: Maybe<Scalars['Boolean']>;
+  service?: Maybe<ServiceInclude>;
+  service_id?: Maybe<Scalars['Boolean']>;
+  short_description?: Maybe<Scalars['Boolean']>;
+  type?: Maybe<Scalars['Boolean']>;
+};
+
 export type User = {
   __typename?: 'User';
   api_keys?: Maybe<Array<ApiKey>>;
   department: Department;
   department_id: Scalars['String'];
   displayName: Scalars['String'];
-  history_responsibilities: Array<TicketHistory>;
   id: Scalars['String'];
   issued: Array<Ticket>;
   mail: Scalars['String'];
   permissions: Array<Permission>;
   phoneNumber: Scalars['String'];
   roles: Array<Role>;
+  service_history_responsibilities: Array<ServiceHistory>;
   settings: UserSetting;
   settings_id: Scalars['String'];
   template_responsibilities: Array<TicketTemplate>;
   ticket_comment_responsibilities: Array<TicketComment>;
+  ticket_history_responsibilities: Array<TicketHistory>;
   ticket_responsibilities: Array<Ticket>;
   username: Scalars['String'];
+};
+
+export type UserFilter = {
+  department?: Maybe<DepartmentFilter>;
+  displayName?: Maybe<Array<NullableStringFilter>>;
+  id?: Maybe<Array<IdFilter>>;
+  issued?: Maybe<TicketFilter>;
+  mail?: Maybe<Array<StringFilter>>;
+  permissions?: Maybe<PermissionFilter>;
+  phoneNumber?: Maybe<Array<NullableStringFilter>>;
+  roles?: Maybe<RoleFilter>;
+  service_history_responsibilities?: Maybe<ServiceHistoryFilter>;
+  settings?: Maybe<UserSettingFilter>;
+  template_responsibilities?: Maybe<TicketTemplateFilter>;
+  ticket_comment_responsibilities?: Maybe<TicketCommentFilter>;
+  ticket_history_responsibilities?: Maybe<TicketHistoryFilter>;
+  ticket_responsibilities?: Maybe<TicketFilter>;
+  username?: Maybe<Array<StringFilter>>;
+};
+
+export type UserInclude = {
+  api_keys?: Maybe<Scalars['Boolean']>;
+  department?: Maybe<DepartmentInclude>;
+  department_id?: Maybe<Scalars['Boolean']>;
+  displayName?: Maybe<Scalars['Boolean']>;
+  history_responsibilities?: Maybe<TicketHistoryInclude>;
+  id?: Maybe<Scalars['Boolean']>;
+  issued?: Maybe<Scalars['Boolean']>;
+  mail?: Maybe<Scalars['Boolean']>;
+  permissions?: Maybe<PermissionInclude>;
+  phoneNumber?: Maybe<Scalars['Boolean']>;
+  roles?: Maybe<RoleInclude>;
+  settings?: Maybe<UserSettingInclude>;
+  settings_id?: Maybe<Scalars['Boolean']>;
+  template_responsibilities?: Maybe<TicketTemplateInclude>;
+  ticket_comment_responsibilities?: Maybe<TicketCommentInclude>;
+  ticket_responsibilities?: Maybe<TicketInclude>;
+  username?: Maybe<Scalars['Boolean']>;
 };
 
 export type UserSetting = {
@@ -373,6 +741,28 @@ export type UserSetting = {
   notification_watching_ticket_change: Array<Scalars['String']>;
   public_profile: Scalars['Boolean'];
   user: User;
+};
+
+export type UserSettingFilter = {
+  day_theme?: Maybe<Array<EnumFilter>>;
+  id?: Maybe<Array<IdFilter>>;
+  night_theme?: Maybe<Array<EnumFilter>>;
+  notification_assign_ticket?: Maybe<Array<EnumArrayFilter>>;
+  notification_assigned_ticket_change?: Maybe<Array<EnumArrayFilter>>;
+  notification_watching_ticket_change?: Maybe<Array<EnumArrayFilter>>;
+  public_profile?: Maybe<Array<BooleanFilter>>;
+  user?: Maybe<UserFilter>;
+};
+
+export type UserSettingInclude = {
+  day_theme?: Maybe<Scalars['Boolean']>;
+  id?: Maybe<Scalars['Boolean']>;
+  night_theme?: Maybe<Scalars['Boolean']>;
+  notification_assign_ticket?: Maybe<Scalars['Boolean']>;
+  notification_assigned_ticket_change?: Maybe<Scalars['Boolean']>;
+  notification_watching_ticket_change?: Maybe<Scalars['Boolean']>;
+  public_profile?: Maybe<Scalars['Boolean']>;
+  user?: Maybe<UserInclude>;
 };
 
 export type ValidationError = {
@@ -417,12 +807,14 @@ export type DeleteApiKeyMutationVariables = Exact<{
 
 export type DeleteApiKeyMutation = { __typename?: 'Mutation', deleteApiKey: { __typename?: 'DeleteKeyResponse', success?: boolean | null | undefined, error?: { __typename?: 'ServerError', name: string, message: string } | null | undefined } };
 
-export type FindAllTicketsQueryVariables = Exact<{
-  count: Scalars['Float'];
+export type FindTicketsMutationVariables = Exact<{
+  filter?: Maybe<TicketFilter>;
+  search?: Maybe<TicketSearchArgument>;
+  count?: Maybe<Scalars['Float']>;
 }>;
 
 
-export type FindAllTicketsQuery = { __typename?: 'Query', findAllTickets: { __typename?: 'TicketQueryAllResponse', tickets?: Array<{ __typename?: 'Ticket', id: string, ticket_id: string, short_description: string, type: string, status: string, created_at: any, updated_at: any, closed_at?: any | null | undefined, responsible_user?: { __typename?: 'User', id: string, username: string, displayName: string } | null | undefined, responsible_department: { __typename?: 'Department', name: string }, issuer?: { __typename?: 'User', id: string, username: string, displayName: string } | null | undefined, issuer_department: { __typename?: 'Department', name: string }, service: { __typename?: 'Service', id: string, name: string }, group?: { __typename?: 'TicketGroup', id: string } | null | undefined }> | null | undefined } };
+export type FindTicketsMutation = { __typename?: 'Mutation', findTickets: { __typename?: 'TicketQueryAllResponse', tickets?: Array<{ __typename?: 'Ticket', id: string, ticket_id: string, short_description: string, type: string, status: string, created_at: any, updated_at: any, closed_at?: any | null | undefined, responsible_user?: { __typename?: 'User', id: string, username: string, displayName: string, mail: string } | null | undefined, responsible_department: { __typename?: 'Department', id: string, name: string }, issuer?: { __typename?: 'User', id: string, username: string, displayName: string, mail: string } | null | undefined, issuer_department: { __typename?: 'Department', id: string, name: string }, service: { __typename?: 'Service', id: string, service_id: string, name: string }, group?: { __typename?: 'TicketGroup', id: string } | null | undefined }> | null | undefined } };
 
 export type GetAllScopeCategoriesQueryVariables = Exact<{ [key: string]: never; }>;
 
@@ -659,9 +1051,9 @@ export function useDeleteApiKeyMutation(baseOptions?: Apollo.MutationHookOptions
 export type DeleteApiKeyMutationHookResult = ReturnType<typeof useDeleteApiKeyMutation>;
 export type DeleteApiKeyMutationResult = Apollo.MutationResult<DeleteApiKeyMutation>;
 export type DeleteApiKeyMutationOptions = Apollo.BaseMutationOptions<DeleteApiKeyMutation, DeleteApiKeyMutationVariables>;
-export const FindAllTicketsDocument = gql`
-    query findAllTickets($count: Float!) {
-  findAllTickets(count: $count) {
+export const FindTicketsDocument = gql`
+    mutation FindTickets($filter: TicketFilter, $search: TicketSearchArgument, $count: Float) {
+  findTickets(filter: $filter, search: $search, count: $count) {
     tickets {
       id
       ticket_id
@@ -672,20 +1064,25 @@ export const FindAllTicketsDocument = gql`
         id
         username
         displayName
+        mail
       }
       responsible_department {
+        id
         name
       }
       issuer {
         id
         username
         displayName
+        mail
       }
       issuer_department {
+        id
         name
       }
       service {
         id
+        service_id
         name
       }
       group {
@@ -698,34 +1095,34 @@ export const FindAllTicketsDocument = gql`
   }
 }
     `;
+export type FindTicketsMutationFn = Apollo.MutationFunction<FindTicketsMutation, FindTicketsMutationVariables>;
 
 /**
- * __useFindAllTicketsQuery__
+ * __useFindTicketsMutation__
  *
- * To run a query within a React component, call `useFindAllTicketsQuery` and pass it any options that fit your needs.
- * When your component renders, `useFindAllTicketsQuery` returns an object from Apollo Client that contains loading, error, and data properties
- * you can use to render your UI.
+ * To run a mutation, you first call `useFindTicketsMutation` within a React component and pass it any options that fit your needs.
+ * When your component renders, `useFindTicketsMutation` returns a tuple that includes:
+ * - A mutate function that you can call at any time to execute the mutation
+ * - An object with fields that represent the current status of the mutation's execution
  *
- * @param baseOptions options that will be passed into the query, supported options are listed on: https://www.apollographql.com/docs/react/api/react-hooks/#options;
+ * @param baseOptions options that will be passed into the mutation, supported options are listed on: https://www.apollographql.com/docs/react/api/react-hooks/#options-2;
  *
  * @example
- * const { data, loading, error } = useFindAllTicketsQuery({
+ * const [findTicketsMutation, { data, loading, error }] = useFindTicketsMutation({
  *   variables: {
+ *      filter: // value for 'filter'
+ *      search: // value for 'search'
  *      count: // value for 'count'
  *   },
  * });
  */
-export function useFindAllTicketsQuery(baseOptions: Apollo.QueryHookOptions<FindAllTicketsQuery, FindAllTicketsQueryVariables>) {
+export function useFindTicketsMutation(baseOptions?: Apollo.MutationHookOptions<FindTicketsMutation, FindTicketsMutationVariables>) {
         const options = {...defaultOptions, ...baseOptions}
-        return Apollo.useQuery<FindAllTicketsQuery, FindAllTicketsQueryVariables>(FindAllTicketsDocument, options);
+        return Apollo.useMutation<FindTicketsMutation, FindTicketsMutationVariables>(FindTicketsDocument, options);
       }
-export function useFindAllTicketsLazyQuery(baseOptions?: Apollo.LazyQueryHookOptions<FindAllTicketsQuery, FindAllTicketsQueryVariables>) {
-          const options = {...defaultOptions, ...baseOptions}
-          return Apollo.useLazyQuery<FindAllTicketsQuery, FindAllTicketsQueryVariables>(FindAllTicketsDocument, options);
-        }
-export type FindAllTicketsQueryHookResult = ReturnType<typeof useFindAllTicketsQuery>;
-export type FindAllTicketsLazyQueryHookResult = ReturnType<typeof useFindAllTicketsLazyQuery>;
-export type FindAllTicketsQueryResult = Apollo.QueryResult<FindAllTicketsQuery, FindAllTicketsQueryVariables>;
+export type FindTicketsMutationHookResult = ReturnType<typeof useFindTicketsMutation>;
+export type FindTicketsMutationResult = Apollo.MutationResult<FindTicketsMutation>;
+export type FindTicketsMutationOptions = Apollo.BaseMutationOptions<FindTicketsMutation, FindTicketsMutationVariables>;
 export const GetAllScopeCategoriesDocument = gql`
     query getAllScopeCategories {
   getAllScopeCategories {
