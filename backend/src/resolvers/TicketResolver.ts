@@ -15,21 +15,29 @@ import {
   Subscription,
   UseMiddleware,
 } from "type-graphql";
-import { ILike } from "typeorm";
+import {
+  Brackets,
+  FindConditions,
+  getConnection,
+  getRepository,
+  ILike,
+  QueryBuilder,
+} from "typeorm";
 import { isAuth } from "../auth/IsAuth";
 import { Department } from "../entities/Department";
 import { Service } from "../entities/Service";
 import { Ticket } from "../entities/Ticket";
-import { TicketGroup } from "../entities/TicketGroup";
 import { User } from "../entities/User";
-import { TicketStatusEnum } from "../enums/TicketStatusEnum";
 import { TicketTypeEnum } from "../enums/TicketTypeEnum";
+import { generateWhereFromSearch_FiltersAndRelations } from "../helpers/ResolverHelper";
 import { ServerError } from "../helpers/ServerError";
-import { findByDepartmentAndDisplayName } from "../helpers/UserData";
 import { ServerContext } from "../ServerContext";
 import { Subscriptions } from "../Subscription";
 import { TicketValidator } from "../validators/TicketValidator";
 import { ValidationError } from "../validators/ValidationError";
+import { TicketFilter } from "./filters/TicketFilter";
+import { TicketOrder } from "./orders/TicketOrder";
+import { TicketSearchArgument } from "./search/TicketSearchArgument";
 
 @ObjectType()
 class TicketCreateResponse {
@@ -88,17 +96,17 @@ export class TicketResolver {
     }
     const resp_user = await User.findOne(payload.id);
 
-    const iss_id = await findByDepartmentAndDisplayName(
-      issuer,
-      issuer_department
-    );
+    const iss = await User.findOne({
+      where: { displayName: issuer, department: { name: issuer_department } },
+      relations: ["department"],
+    });
 
     const errors = await TicketValidator.validate({
       short_description,
       description,
       type,
       status: null,
-      issuer: iss_id,
+      issuer: iss.id,
       issuer_department,
       service,
       group_id,
@@ -112,7 +120,7 @@ export class TicketResolver {
         type,
         resp_user.id,
         resp_user.department_id,
-        iss_id,
+        iss.id,
         await Department.findOne({ where: { name: issuer_department } }),
         await Service.findOne({ where: { name: service } }),
         null
@@ -157,10 +165,17 @@ export class TicketResolver {
     };
   }
 
-  @Query(() => TicketQueryAllResponse)
+  /*@Query(() => TicketQueryAllResponse)
   @UseMiddleware(isAuth)
   async findAllTickets(
-    @Arg("count") count: number,
+    @Arg("count", { nullable: true, defaultValue: 50 }) count: number,
+    @Arg("search", () => TicketSearchArgument, {
+      nullable: true,
+      defaultValue: null,
+    })
+    search: TicketSearchArgument,
+    @Arg("filter", () => TicketFilter, { nullable: true, defaultValue: null })
+    filter: TicketFilter,
     @Ctx() { payload }: ServerContext
   ): Promise<TicketQueryAllResponse> {
     if (payload.error) {
@@ -182,6 +197,61 @@ export class TicketResolver {
         tickets[i].responsible_user_id
       );
     }
+    return {
+      tickets: tickets,
+    };
+  }
+*/
+  @Mutation(() => TicketQueryAllResponse)
+  @UseMiddleware(isAuth)
+  async findTickets(
+    @Arg("count", { nullable: true, defaultValue: 50 }) count: number,
+    @Arg("search", () => TicketSearchArgument, {
+      nullable: true,
+      defaultValue: null,
+    })
+    search: TicketSearchArgument,
+    @Arg("filter", () => TicketFilter, { nullable: true, defaultValue: null })
+    filter: TicketFilter,
+    @Arg("order", () => TicketOrder, { nullable: true, defaultValue: null })
+    order: TicketOrder,
+    @Ctx()
+    { payload }: ServerContext
+  ): Promise<TicketQueryAllResponse> {
+    if (payload.error) {
+      return { error: payload.error };
+    }
+
+    // "Entity__relationName__relationName"."propertyName"
+
+    const relations = [
+      "responsible_user",
+      "responsible_department",
+      "issuer",
+      "issuer_department",
+      "service",
+      "group",
+    ];
+    let where = generateWhereFromSearch_FiltersAndRelations(
+      search,
+      filter,
+      relations,
+      "ticket"
+    );
+
+    const tickets = await Ticket.find({
+      where: where,
+      take: count,
+      relations: relations,
+      order: { ticket_id: "ASC" },
+    });
+
+    /*for (let i = 0; i < tickets.length; i++) {
+      tickets[i].issuer = await User.findOne(tickets[i].issuer_id);
+      tickets[i].responsible_user = await User.findOne(
+        tickets[i].responsible_user_id
+      );
+    }*/
     return {
       tickets: tickets,
     };

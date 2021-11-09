@@ -8,6 +8,7 @@ import {
   Resolver,
   UseMiddleware,
 } from "type-graphql";
+import { ILike } from "typeorm";
 import { verify_password } from "../auth/auth";
 import { isAuth } from "../auth/IsAuth";
 import { Jwt } from "../auth/jwt/Jwt";
@@ -15,11 +16,6 @@ import { Rsa } from "../auth/rsa/Rsa";
 import { Client } from "../entities/Client";
 import { User } from "../entities/User";
 import { ServerError } from "../helpers/ServerError";
-import {
-  find as findUser,
-  findContainingWithOfDepartment,
-  findStartingWith,
-} from "../helpers/UserData";
 import { ServerContext } from "../ServerContext";
 
 @ObjectType()
@@ -52,7 +48,12 @@ export class UserResolver {
     if (payload.error) {
       return [];
     }
-    return findContainingWithOfDepartment(search, department, 20);
+    return await User.find({
+      where: {
+        displayName: ILike(`%${search}%`),
+      },
+      relations: ["department"],
+    });
   }
 
   @Query(() => User, { nullable: true })
@@ -81,15 +82,15 @@ export class UserResolver {
   ): Promise<LoginResponse> {
     let user: User = null;
     if (mail.includes("@")) {
-      const local_user = await findUser({ mail: mail });
-      if (local_user) {
-        user = await User.findOne(local_user.id, { relations: ["department"] });
-      }
+      user = await User.findOne({
+        where: { mail: mail },
+        relations: ["department"],
+      });
     } else {
-      const local_user = await findUser({ username: mail });
-      if (local_user) {
-        user = await User.findOne(local_user.id, { relations: ["department"] });
-      }
+      user = await User.findOne({
+        where: { username: mail },
+        relations: ["department"],
+      });
     }
     if (!user) {
       return {
@@ -115,8 +116,7 @@ export class UserResolver {
     client.remove();
     const valid = verify_password(
       Rsa.decrypt(password, client.private_key),
-      user.password,
-      user.personalized_secret
+      user.password
     );
     if (!valid) {
       return {
