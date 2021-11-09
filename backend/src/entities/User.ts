@@ -1,216 +1,194 @@
-import { randomBytes } from "crypto";
+import { createSecretKey, randomBytes } from "crypto";
 import { Field, ObjectType } from "type-graphql";
-import { AfterInsert, AfterLoad, AfterUpdate, BaseEntity, BeforeInsert, BeforeRemove, BeforeUpdate, Column, Entity, JoinColumn, JoinTable, ManyToMany, ManyToOne, OneToMany, OneToOne, PrimaryGeneratedColumn } from "typeorm";
+import {
+  AfterInsert,
+  AfterLoad,
+  AfterUpdate,
+  BaseEntity,
+  BeforeInsert,
+  BeforeRemove,
+  BeforeUpdate,
+  Column,
+  Entity,
+  JoinColumn,
+  JoinTable,
+  ManyToMany,
+  ManyToOne,
+  OneToMany,
+  OneToOne,
+  PrimaryGeneratedColumn,
+} from "typeorm";
 import { generate_random_secret, hash_password } from "../auth/auth";
 import { PersonalizedEncryption } from "../auth/encryption/PersonalizedEncryption";
-import * as helper from '../helpers/UserData';
 import { ApiKey } from "./ApiKey";
 import { Department } from "./Department";
 import { Permission } from "./Permission";
 import { Role } from "./Role";
+import { ServiceHistory } from "./ServiceHistory";
 import { Ticket } from "./Ticket";
 import { TicketComment } from "./TicketComment";
 import { TicketHistory } from "./TicketHistory";
 import { TicketTemplate } from "./TicketTemplate";
 import { UserSetting } from "./UserSetting";
 
-
 let key = "";
-
 
 @ObjectType()
 @Entity()
 export class User extends BaseEntity {
+  constructor(
+    username: string,
+    displayName: string,
+    mail: string,
+    password: string,
+    department_id: string,
+    phoneNumber?: string
+  ) {
+    super();
+    this.username = username;
+    this.displayName = displayName;
+    this.mail = mail;
+    this.password = hash_password(password ?? "");
+    this.department_id = department_id;
+    this.phoneNumber = phoneNumber ?? null;
+  }
 
-    constructor(username: string, displayName: string, mail: string,
-        password: string, department_id: string, phoneNumber?: string) {
-        super();
-        this.username = username;
-        this.displayName = displayName;
-        this.mail = mail;
-        this.password = hash_password(password ?? "");
-        this.department_id = department_id;
-        this.phoneNumber = phoneNumber ?? null;
-    }
+  @Field()
+  @PrimaryGeneratedColumn("uuid")
+  id: string;
 
-    @Field()
-    @PrimaryGeneratedColumn('uuid')
-    id: string;
+  @Field()
+  @Column({
+    type: "varchar",
+    length: 32,
+    nullable: true,
+    transformer: {
+      // original 32
+      to: (value: string) => value.toLowerCase(),
+      from: (value: string) => value,
+    },
+  })
+  username: string;
 
-    @Field()
-    @Column({
-        type: 'varchar', length: 96, nullable: true, transformer: {  // original 32
-            to: (value: string) => PersonalizedEncryption.encrypt_data(value.toLowerCase(), key),
-            from: (value: string) => value
-        }
-    })
-    username: string;
+  @Field()
+  @Column({
+    type: "varchar",
+    length: 64,
+    nullable: true,
+  })
+  displayName: string;
 
-    @Field()
-    @Column({
-        type: 'varchar', length: 192, nullable: true, transformer: {  // original 64
-            to: (value: string) => PersonalizedEncryption.encrypt_data(value, key),
-            from: (value: string) => value
-        }
-    })
-    displayName: string;
+  @Field()
+  @Column({
+    type: "varchar",
+    length: 64,
+    nullable: false,
+    unique: true,
+    transformer: {
+      to: (value: string) => value.toLowerCase(),
+      from: (value: string) => value,
+    },
+  })
+  mail: string;
 
-    @Field()
-    @Column({
-        type: 'varchar', length: 192, nullable: false, unique: true, transformer: { // original 64
-            to: (value: string) => PersonalizedEncryption.encrypt_data(value.toLowerCase(), key),
-            from: (value: string) => value
-        }
-    })
-    mail: string;
+  @Column({
+    type: "varchar",
+    length: 256,
+    nullable: false,
+  })
+  password: string;
 
-    @Column({
-        type: 'varchar', length: 768, nullable: false, transformer: { // original 256
-            to: (value: string) => PersonalizedEncryption.encrypt_data(value, key),
-            from: (value: string) => value
-        }
-    })
-    password: string;
+  @Field()
+  @Column({
+    type: "varchar",
+    length: 24,
+    nullable: true,
+    unique: true,
+  })
+  phoneNumber: string;
 
-    @Field()
-    @Column({
-        type: 'varchar', length: 48, nullable: true, unique: true, transformer: { // original 16
-            to: (value: string) => PersonalizedEncryption.encrypt_data(value, key),
-            from: (value: string) => value
-        }
-    })
-    phoneNumber: string;
+  @Column({
+    type: "varchar",
+    length: 128,
+    nullable: true,
+  })
+  two_factor_secret: string;
 
-    @Column({
-        type: 'varchar', length: 384, nullable: true, transformer: { // original 128
-            to: (value: string) => PersonalizedEncryption.encrypt_data(value, key),
-            from: (value: string) => value
-        }
-    })
-    two_factor_secret: string;
+  @Column("int", { default: 0, nullable: false })
+  jwt_version: number;
 
-    @Column({
-        type: 'varchar', length: 384, nullable: false, transformer: { // original 128
-            to: (value: string) => PersonalizedEncryption.encrypt_data(value, key),
-            from: (value: string) => value
-        }
-    })
-    jwt_secret: string;
+  @Field(() => String)
+  @Column({ type: "uuid" })
+  settings_id: string;
 
-    @Column("int", { default: 0, nullable: false })
-    jwt_version: number;
+  @Field(() => UserSetting)
+  @OneToOne((type) => UserSetting, (us) => us.user)
+  @JoinColumn({ name: "settings_id" })
+  settings: UserSetting;
 
-    @Column({
-        type: 'varchar', length: 128, nullable: false, transformer: {
-            to: (value: string) => PersonalizedEncryption.encrypt_key(value),
-            from: (value: string) => PersonalizedEncryption.decrypt_key(value)
-        }
-    })
-    personalized_secret: string;
+  @Field(() => [Role])
+  @ManyToMany((type) => Role, (r) => r.users)
+  @JoinTable({
+    name: "user_roles",
+    inverseJoinColumn: { name: "user_id", referencedColumnName: "id" },
+    joinColumn: { name: "role_id", referencedColumnName: "id" },
+  })
+  roles: Role[];
 
-    @Field(() => String)
-    @Column({ type: "uuid" })
-    settings_id: string;
+  @Field(() => [Permission])
+  @ManyToMany((type) => Permission, (p) => p.users)
+  @JoinTable({
+    name: "user_permissions",
+    inverseJoinColumn: { name: "permission_id", referencedColumnName: "id" },
+    joinColumn: { name: "user_id", referencedColumnName: "id" },
+  })
+  permissions: Permission[];
 
-    @Field(() => UserSetting)
-    @OneToOne(type => UserSetting, us => us.user)
-    @JoinColumn({ name: 'settings_id' })
-    settings: UserSetting;
+  @Field(() => [Ticket])
+  @OneToMany((type) => Ticket, (t) => t.responsible_user)
+  ticket_responsibilities: Ticket[];
 
-    @Field(() => [Role])
-    @ManyToMany(type => Role, r => r.users)
-    @JoinTable({ name: 'user_roles', inverseJoinColumn: { name: 'user_id', referencedColumnName: 'id' }, joinColumn: { name: 'role_id', referencedColumnName: 'id' } })
-    roles: Role[];
+  @Field(() => [TicketTemplate])
+  @OneToMany((type) => TicketTemplate, (tt) => tt.responsible_user)
+  template_responsibilities: TicketTemplate[];
 
-    @Field(() => [Permission])
-    @ManyToMany(type => Permission, p => p.users)
-    @JoinTable({ name: 'user_permissions', inverseJoinColumn: { name: 'permission_id', referencedColumnName: 'id' }, joinColumn: { name: 'user_id', referencedColumnName: 'id' } })
-    permissions: Permission[];
+  @Field(() => [TicketHistory])
+  @OneToMany((type) => TicketHistory, (th) => th.responsible_user)
+  ticket_history_responsibilities: TicketHistory[];
 
-    @Field(() => [Ticket])
-    @OneToMany(type => Ticket, t => t.responsible_user)
-    ticket_responsibilities: Ticket[];
+  @Field(() => [ServiceHistory])
+  @OneToMany((type) => ServiceHistory, (th) => th.responsible_user)
+  service_history_responsibilities: ServiceHistory[];
 
-    @Field(() => [TicketTemplate])
-    @OneToMany(type => TicketTemplate, tt => tt.responsible_user)
-    template_responsibilities: TicketTemplate[];
+  @Field(() => [TicketComment])
+  @OneToMany((type) => TicketComment, (tc) => tc.creator)
+  ticket_comment_responsibilities: TicketComment[];
 
-    @Field(() => [TicketHistory])
-    @OneToMany(type => TicketHistory, th => th.responsible_user)
-    history_responsibilities: TicketHistory[];
+  @Field(() => [Ticket])
+  @OneToMany((type) => Ticket, (t) => t.issuer)
+  issued: Ticket[];
 
-    @Field(() => [TicketComment])
-    @OneToMany(type => TicketComment, tc => tc.creator)
-    ticket_comment_responsibilities: TicketComment[];
+  @Field()
+  @Column({ type: "uuid" })
+  department_id: string;
 
-    @Field(() => [Ticket])
-    @OneToMany(type => Ticket, t => t.issuer)
-    issued: Ticket[];
+  @Field(() => Department)
+  @ManyToOne((type) => Department, (d) => d.users)
+  @JoinColumn({ name: "department_id" })
+  department: Department;
 
-    @Field()
-    @Column({ type: "uuid" })
-    department_id: string;
+  @Field(() => [ApiKey], { nullable: true })
+  @OneToMany((type) => ApiKey, (ak) => ak.owner)
+  api_keys: ApiKey[];
 
-    @Field(() => Department)
-    @ManyToOne(type => Department, d => d.users)
-    @JoinColumn({ name: 'department_id' })
-    department: Department;
+  @BeforeInsert()
+  private async generateDefaultSettings() {
+    const us = new UserSetting();
+    const usin = await UserSetting.insert(us);
+    this.settings_id = usin.identifiers[0].id;
+  }
 
-    @Field(() => [ApiKey], { nullable: true })
-    @OneToMany(type => ApiKey, ak => ak.owner)
-    api_keys: ApiKey[];
-
-    @BeforeInsert()
-    private generateJwtSecret() {
-        this.jwt_secret = generate_random_secret(128);
-    }
-
-    @BeforeInsert()
-    private generatePersonalizedSecret() {
-        this.personalized_secret = PersonalizedEncryption.encrypt_key(randomBytes(8).toString('hex'));
-    }
-
-    @BeforeInsert()
-    private async generateDefaultSettings() {
-        const us = new UserSetting();
-        const usin = await UserSetting.insert(us);
-        this.settings_id = usin.identifiers[0].id;
-    }
-
-    @BeforeInsert()
-    @BeforeUpdate()
-    private define_key_insert_update() {
-        key = PersonalizedEncryption.decrypt_key(this.personalized_secret);
-    }
-
-    @AfterInsert()
-    private async add_user() {
-        await helper.add(this);
-    }
-    @AfterUpdate()
-    private async update_user() {
-        await helper.update(this);
-    }
-
-    @BeforeRemove()
-    private async remove_user() {
-        await helper.remove(this.id);
-    }
-
-    /*
-     * Is only executed on direct find*
-     * use await User.findOne(id) for relationships! 
-     */
-    @AfterLoad()
-    private decrypt_data() {
-        key = PersonalizedEncryption.decrypt_key(this.personalized_secret);
-        this.username = PersonalizedEncryption.decrypt_data(this.username, key);
-        this.displayName = PersonalizedEncryption.decrypt_data(this.displayName, key);
-        this.mail = PersonalizedEncryption.decrypt_data(this.mail, key);
-        this.phoneNumber = PersonalizedEncryption.decrypt_data(this.phoneNumber, key);
-    }
-
-    static async exists(id: string): Promise<boolean> {
-        return (await User.findOne(id)) != null;
-    }
+  static async exists(id: string): Promise<boolean> {
+    return (await User.findOne(id)) != null;
+  }
 }
