@@ -1,8 +1,12 @@
+import { Not } from "typeorm";
 import { Department } from "../entities/Department";
 import { User } from "../entities/User";
 
 export const addMockUsers = async () => {
   if ((await User.find()).length > 7) return;
+  if ((await Department.count()) != 1) {
+    Department.delete({ name: Not("I411") });
+  }
   const i371_in = await Department.insert(new Department("I371"));
   const p114_in = await Department.insert(new Department("P114"));
   const i221_in = await Department.insert(new Department("I221"));

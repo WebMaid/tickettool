@@ -62,8 +62,7 @@ import * as settings from "./settings";
 
   httpServer.listen(settings.port, async () => {
     await globals.defineValues();
-    console.log("STARTED SERVER SUCCESSFULLY!");
-    const dep = await Department.findOne();
+    const dep = await Department.findOne({ where: { name: "I411" } });
     if ((await User.find()).length == 0) {
       await User.insert(
         new User(
@@ -76,6 +75,7 @@ import * as settings from "./settings";
       );
       console.log("Added new user");
     }
+    console.log("STARTED SERVER SUCCESSFULLY!");
     addMockUsers();
   });
 })();
